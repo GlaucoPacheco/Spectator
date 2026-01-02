@@ -30,6 +30,8 @@
 namespace Spectator
 {
 
+constinit thread_local ScenarioRunner * ScenarioRunner::m_pCurrentRunner = nullptr;
+
 ScenarioRunner::ScenarioRunner(const Scenario & scenario) :
     m_scenario(scenario)
 {

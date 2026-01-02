@@ -53,10 +53,10 @@ public:
     ScenarioRunResults runScenario();
 
 private:
-    bool hasVisitedAllLeafNodes();
+    bool hasVisitedAllLeafNodes() {return false;}
 
 private:
-    static thread_local ScenarioRunner * m_pCurrentRunner;
+    static constinit thread_local ScenarioRunner * m_pCurrentRunner;
     const Scenario & m_scenario;
     ScenarioRunResults m_scenarioRunResults;
     QStack<Section*> m_sectionsStack;
