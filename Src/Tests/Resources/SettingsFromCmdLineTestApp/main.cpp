@@ -12,6 +12,7 @@ int main(int argc, char ** argv)
     QCoreApplication app(argc, argv);
     const auto settings = Settings::fromCmdLine();
     QByteArray buffer;
+    buffer.reserve(1024);
     QDataStream dataStream(&buffer, QIODeviceBase::WriteOnly);
     dataStream << settings.threadCount();
     dataStream << settings.repetitionCount();
