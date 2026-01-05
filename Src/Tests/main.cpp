@@ -7,24 +7,34 @@
 #include <QDir>
 #include <QtLogging>
 #include <QDebug>
-#include <QJsonDocument>
-#include <QJsonObject>
-#include <QJsonValue>
+#include <QDataStream>
+#include <QByteArray>
+#include <QStringList>
+#include <QSet>
+#include <QTextStream>
+#include <cstdio>
 
 using namespace Qt::StringLiterals;
+
+static QTextStream & qStdOut()
+{
+    static QTextStream textStream(stdout);
+    return textStream;
+}
 
 static void testSettingsFromCmdLine();
 
 int main(int argc, char **argv)
 {
     QCoreApplication app(argc, argv);
-    qInfo("Running Tests");
+    qStdOut() << u"Running Tests"_s << Qt::endl;
     testSettingsFromCmdLine();
     return 0;
 }
 
 static void testSettingsFromCmdLine()
 {
+    qStdOut() << u"Testing Settings from command line."_s << Qt::endl;
     const auto threadCounts = QStringList() << u""_s
                                             << u"-1"_s
                                             << u"1"_s
@@ -75,47 +85,41 @@ static void testSettingsFromCmdLine()
                             qFatal("%s%s%s", "Failed to wait for ", qUtf8Printable(resourceTestAppFilePath), " test app to finish.");
                         const auto output = testApp.readAllStandardOutput();
                         // Check result
-                        QJsonDocument jsonDoc = QJsonDocument::fromJson(output);
-                        if (jsonDoc.isNull())
-                            qFatal() << "Failed to parse test app output. Given response is not valid json. " << testApp.readAllStandardError();
-                        if (!jsonDoc.isObject())
-                            qFatal() << "Failed to parse test app output. Given response does not have a json object as root object.";
-                        const auto root = jsonDoc.object();
-                        if (!root.contains(u"threadCount"_s))
-                            qFatal() << "Root object does not contain a key named threadCount";
-                        const int parsedThreadCount = root[u"threadCount"_s].toInt();
-                        const int expectedThreadCount = threadCount.isEmpty() ? 1 : (threadCount.toInt() == -1 ? QThread::idealThreadCount() : threadCount.toInt());
+                        const auto buffer = QByteArray::fromBase64(output);
+                        QDataStream dataStream(buffer);
+                        qint32 parsedThreadCount = 0;
+                        dataStream >> parsedThreadCount;
+                        const qint32 expectedThreadCount = threadCount.isEmpty() ? 1 : (threadCount.toInt() == -1 ? QThread::idealThreadCount() : threadCount.toInt());
                         if (parsedThreadCount != expectedThreadCount)
                             qFatal() << QString(u"Thread count does not match with expected value (parsed value = %1; expected value = %2)."_s).arg(parsedThreadCount).arg(expectedThreadCount);
-                        if (!root.contains(u"repetitionCount"_s))
-                            qFatal() << "Root object does not contain a key named repetitionCount";
-                        const auto parsedRepetitionCount = root[u"repetitionCount"_s].toInteger();
+                        qint64 parsedRepetitionCount = 0;
+                        dataStream >> parsedRepetitionCount;
                         const qint64 expectedRepetitionCount = repetitionCount.isEmpty() ? 0 : repetitionCount.toLongLong();
                         if (parsedRepetitionCount != expectedRepetitionCount)
                             qFatal() << QString(u"Repetition count does not match with expected value (parsed value = %1; expected value = %2)."_s).arg(parsedRepetitionCount).arg(expectedRepetitionCount);
-                        if (!root.contains(u"filePathFilter"_s))
-                            qFatal() << "Root object does not contain a key named filePathFilter";
-                        const auto parsedFilePathFilter = root[u"filePathFilter"_s].toString();
+                        QString parsedFilePathFilter;
+                        dataStream >> parsedFilePathFilter;
                         if (parsedFilePathFilter != filePathFilter)
                             qFatal() << QString(u"File path filter does not match with expected value (parsed value = %1; expected value = %2)."_s).arg(parsedFilePathFilter).arg(filePathFilter);
-                        if (!root.contains(u"scenarioNameFilter"_s))
-                            qFatal() << "Root object does not contain a key named scenarioNameFilter";
-                        const auto parsedScenarioNameFilter = root[u"scenarioNameFilter"_s].toString();
+                        QString parsedScenarioNameFilter;
+                        dataStream >> parsedScenarioNameFilter;
                         const auto expectedScenarioNameFilter = scenarioNameFilter.isEmpty() ? u""_s : (u"Scenario: "_s + scenarioNameFilter);
                         if (parsedScenarioNameFilter != expectedScenarioNameFilter)
                             qFatal() << QString(u"Scenario name filter does not match with expected value (parsed value = %1; expected value = %2)."_s).arg(parsedScenarioNameFilter).arg(expectedScenarioNameFilter);
-
-                        // if (!scenarioNameFilter.isEmpty())
-                        //     cmdLineArgs << u"-s"_s << scenarioNameFilter;
-                        // if (!tags.isEmpty())
-                        // {
-                        //     for (const auto & tag : tags)
-                        //         cmdLineArgs << u"-t"_s << tag;
-                        // }
+                        QStringList parsedTags;
+                        dataStream >> parsedTags;
+                        QSet<QString> orderedParsedTags;
+                        for (const auto &tag : parsedTags)
+                            orderedParsedTags.insert(tag);
+                        QSet<QString> orderedExpectedTags;
+                        for (const auto &tag : tags)
+                            orderedExpectedTags.insert(tag);
+                        if (orderedParsedTags != orderedExpectedTags)
+                            qFatal("Parsed tags do not match expected tags.");
                     }
                 }
             }
         }
     }
-
+    qStdOut() << u"PASSED Settings from command line tests."_s << Qt::endl;
 }
