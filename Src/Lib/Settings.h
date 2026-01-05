@@ -39,16 +39,16 @@ class Settings
 public:
     Settings() = default;
     ~Settings() = default;
-    int threadCount() const {return m_threadCount;}
-    quint64 repetitionCount() const {return m_repetitionCount;}
+    qint32 threadCount() const {return m_threadCount;}
+    qint64 repetitionCount() const {return m_repetitionCount;}
     QString filePathFilter() const {return m_filePathFilter;}
     QString scenarioNameFilter() const {return m_scenarioNameFilter;}
     QStringList scenarioTagsFilter() const {return m_scenarioTagsFilter;}
     static Settings fromCmdLine();
 
 private:
-    int m_threadCount = 1;
-    quint64 m_repetitionCount = 1;
+    qint32 m_threadCount = 1;
+    qint64 m_repetitionCount = 0;
     QString m_filePathFilter;
     QString m_scenarioNameFilter;
     QStringList m_scenarioTagsFilter;

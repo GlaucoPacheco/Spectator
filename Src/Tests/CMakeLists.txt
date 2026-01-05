@@ -12,6 +12,3 @@ target_link_libraries(Tests
     Spectator
     Qt::Core
     Qt::Concurrent)
-target_precompile_headers(Tests PRIVATE
-    <QtCore>
-    <QtConcurrent>)

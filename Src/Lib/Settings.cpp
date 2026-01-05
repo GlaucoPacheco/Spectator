@@ -35,7 +35,7 @@ Settings Settings::fromCmdLine()
 {
     QCommandLineParser parser;
     parser.addOptions({{"j", "Sets the number of threads to use for running the tests.", "<thread count>", "1"},
-                       {"r", "Sets how many times the tests should be repeated.", "<repetition count>", "1"},
+                       {"r", "Sets how many times the tests should be repeated.", "<repetition count>", "0"},
                        {"f", "Sets the source file for filtering scenarios. Only scenarios belonging to the given source file are run.", "<scenario filename>", ""},
                        {"s", "Sets the scenario name for filtering scenarios. Only scenarios matching the given name are run.", "<scenario name>", ""},
                        {"t", "Adds the scenario tag for filtering scenarios. Only scenarios tagged with the given tag are run.", "<scenario tag>", ""}});
@@ -57,11 +57,12 @@ Settings Settings::fromCmdLine()
         {
             bool ok = false;
             auto const threadCount = values[0].toInt(&ok);
-            if (!ok || threadCount < 0 || threadCount > QThread::idealThreadCount())
+            if (!ok || threadCount < -1 || threadCount == 0 || threadCount > QThread::idealThreadCount())
                 qFatal("Failed to parse command line options. Invalid argument value. "
-                        "The option -j must have as value a positive integer equal to or "
-                        "lesser than the value returned by QThread::idealThreadCount.");
-            settings.m_threadCount = threadCount;
+                        "The option -j must have as values either a positive integer equal to or "
+                        "lesser than the value returned by QThread::idealThreadCount or -1, in "
+                        "which case, QThread::idealThreadCount() threads will be used for running the filtered scenarios.");
+            settings.m_threadCount = threadCount > 0 ? threadCount : QThread::idealThreadCount();
         }
     }
     if (parser.isSet("r"))
@@ -73,7 +74,7 @@ Settings Settings::fromCmdLine()
         {
             bool ok = false;
             auto const repetitionCount = values[0].toLongLong(&ok);
-            if (!ok || repetitionCount < 0)
+            if (!ok || repetitionCount <= 0)
                 qFatal("Failed to parse command line options. Invalid argument value. "
                        "The option -r must have as value a positive integer.");
             settings.m_repetitionCount = repetitionCount;
