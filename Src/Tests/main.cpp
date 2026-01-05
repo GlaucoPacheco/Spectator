@@ -93,8 +93,18 @@ static void testSettingsFromCmdLine()
                         const qint64 expectedRepetitionCount = repetitionCount.isEmpty() ? 0 : repetitionCount.toLongLong();
                         if (parsedRepetitionCount != expectedRepetitionCount)
                             qFatal() << QString(u"Repetition count does not match with expected value (parsed value = %1; expected value = %2)."_s).arg(parsedRepetitionCount).arg(expectedRepetitionCount);
-                        // if (!filePathFilter.isEmpty())
-                        //     cmdLineArgs << u"-f"_s << filePathFilter;
+                        if (!root.contains(u"filePathFilter"_s))
+                            qFatal() << "Root object does not contain a key named filePathFilter";
+                        const auto parsedFilePathFilter = root[u"filePathFilter"_s].toString();
+                        if (parsedFilePathFilter != filePathFilter)
+                            qFatal() << QString(u"File path filter does not match with expected value (parsed value = %1; expected value = %2)."_s).arg(parsedFilePathFilter).arg(filePathFilter);
+                        if (!root.contains(u"scenarioNameFilter"_s))
+                            qFatal() << "Root object does not contain a key named scenarioNameFilter";
+                        const auto parsedScenarioNameFilter = root[u"scenarioNameFilter"_s].toString();
+                        const auto expectedScenarioNameFilter = scenarioNameFilter.isEmpty() ? u""_s : (u"Scenario: "_s + scenarioNameFilter);
+                        if (parsedScenarioNameFilter != expectedScenarioNameFilter)
+                            qFatal() << QString(u"Scenario name filter does not match with expected value (parsed value = %1; expected value = %2)."_s).arg(parsedScenarioNameFilter).arg(expectedScenarioNameFilter);
+
                         // if (!scenarioNameFilter.isEmpty())
                         //     cmdLineArgs << u"-s"_s << scenarioNameFilter;
                         // if (!tags.isEmpty())
