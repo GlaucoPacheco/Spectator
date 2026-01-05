@@ -42,7 +42,7 @@ void ScenarioRepository::addScenario(Scenario const * const pScenario)
         qFatal("Failed to add scenario to repository. Scenario has already been added and scenarios can only be added once.");
 }
 
-auto ScenarioRepository::size()
+qsizetype ScenarioRepository::size()
 {
     QMutexLocker locker(&m_scenariosLock);
     return m_scenarios.size();

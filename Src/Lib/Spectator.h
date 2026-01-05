@@ -27,6 +27,7 @@
 #ifndef SPECTATOR_H
 #define SPECTATOR_H
 
+#include "Scenario.h"
 #include "ScenariosRunner.h"
 #include <QCoreApplication>
 

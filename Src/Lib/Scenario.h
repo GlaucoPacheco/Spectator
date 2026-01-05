@@ -43,6 +43,10 @@ public:
     using F = void(*)();
     Scenario(QByteArrayView sourceFile, qint32 sourceLine, QByteArrayView scenarioName, F f);
     ~Scenario() = default;
+    inline QByteArrayView sourceFile() const {return m_sourceFile;}
+    inline qint32 sourceLine() const {return m_sourceLine;}
+    inline QByteArrayView scenarioName() const {return m_scenarioName;}
+    inline std::function<void()> scenarioFunction() const {return m_scenarioFunction;}
 
 private:
     const QByteArrayView m_sourceFile;

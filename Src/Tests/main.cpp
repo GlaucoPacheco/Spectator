@@ -12,6 +12,7 @@
 #include <QStringList>
 #include <QSet>
 #include <QTextStream>
+#include <QFileInfo>
 #include <cstdio>
 
 using namespace Qt::StringLiterals;
@@ -22,17 +23,19 @@ static QTextStream & qStdOut()
     return textStream;
 }
 
-static void testSettingsFromCmdLine();
+static void spectatorFetchesSettingsFromCmdLine();
+static void spectatorStoresScenarios();
 
 int main(int argc, char **argv)
 {
     QCoreApplication app(argc, argv);
     qStdOut() << u"Running Tests"_s << Qt::endl;
-    testSettingsFromCmdLine();
+    spectatorFetchesSettingsFromCmdLine();
+    spectatorStoresScenarios();
     return 0;
 }
 
-static void testSettingsFromCmdLine()
+static void spectatorFetchesSettingsFromCmdLine()
 {
     qStdOut() << u"Testing Settings from command line."_s << Qt::endl;
     const auto threadCounts = QStringList() << u""_s
@@ -122,4 +125,60 @@ static void testSettingsFromCmdLine()
         }
     }
     qStdOut() << u"PASSED Settings from command line tests."_s << Qt::endl;
+}
+
+static void spectatorStoresScenarios()
+{
+    qStdOut() << u"Testing Scenario Storing."_s << Qt::endl;
+    // Run test app
+    QProcess testApp;
+    auto testsAppDir = QDir(QCoreApplication::applicationDirPath());
+    auto resourceTestAppFilePath = testsAppDir.absoluteFilePath("Resources/SpectatorStoresScenariosTestApp/SpectatorStoresScenariosTestApp");
+    testApp.start(resourceTestAppFilePath);
+    if (!testApp.waitForFinished(5000))
+        qFatal("%s%s%s", "Failed to wait for ", qUtf8Printable(resourceTestAppFilePath), " test app to finish.");
+    const auto output = testApp.readAllStandardOutput();
+    // Check result
+    const auto buffer = QByteArray::fromBase64(output);
+    QDataStream dataStream(buffer);
+    qsizetype scenarioCount = 0;
+    dataStream >> scenarioCount;
+    if (scenarioCount != 5)
+        qFatal("Spectator did not store the correct number of scenarios.");
+    struct ScenarioData
+    {
+        QByteArray sourceFile;
+        qint32 sourceLine;
+        QByteArray scenarioName;
+        inline bool operator==(const ScenarioData & other) const
+        {
+            return sourceFile == other.sourceFile
+                   && sourceLine == other.sourceLine
+                   && scenarioName == other.scenarioName;
+        }
+    };
+    QList<ScenarioData> fetchedScenarios;
+    for (auto i = 0; i < scenarioCount; ++i)
+    {
+        fetchedScenarios.append(ScenarioData());
+        dataStream >> fetchedScenarios.back().sourceFile;
+        dataStream >> fetchedScenarios.back().sourceLine;
+        dataStream >> fetchedScenarios.back().scenarioName;
+    }
+    const QFileInfo thisFileInfo(__FILE__);
+    QDir scenariosDir(thisFileInfo.canonicalPath());
+    if (!scenariosDir.cd(u"Resources"_s) || !scenariosDir.cd(u"SpectatorStoresScenariosTestApp"_s))
+        qFatal("Failed to navigate to directory containing scenario source files.");
+    const auto expectedScenariosData = QList<ScenarioData>()
+        << ScenarioData{.sourceFile=scenariosDir.absoluteFilePath(u"scenarios_1.cpp"_s).toUtf8(), .sourceLine=3, .scenarioName="Scenario: A Scenario"}
+        << ScenarioData{.sourceFile=scenariosDir.absoluteFilePath(u"scenarios_1.cpp"_s).toUtf8(), .sourceLine=7, .scenarioName="Scenario: Another Scenario"}
+        << ScenarioData{.sourceFile=scenariosDir.absoluteFilePath(u"scenarios_1.cpp"_s).toUtf8(), .sourceLine=11, .scenarioName="Scenario: Yet Another Scenario"}
+        << ScenarioData{.sourceFile=scenariosDir.absoluteFilePath(u"scenarios_2.cpp"_s).toUtf8(), .sourceLine=4, .scenarioName="Scenario: Spectator is a really fast test framework"}
+        << ScenarioData{.sourceFile=scenariosDir.absoluteFilePath(u"scenarios_3.cpp"_s).toUtf8(), .sourceLine=5, .scenarioName="Scenario: Kourier is a blazingly fast HTTP server"};
+    for (const auto & expectedScenarioData : expectedScenariosData)
+    {
+        if (!fetchedScenarios.contains(expectedScenarioData))
+            qFatal("Spectator failed to store scenario data.");
+    }
+    qStdOut() << u"PASSED Testing Scenario Storing."_s << Qt::endl;
 }

@@ -3,3 +3,4 @@
 # All rights reserved.
 #
 add_subdirectory(SettingsFromCmdLineTestApp)
+add_subdirectory(SpectatorStoresScenariosTestApp)

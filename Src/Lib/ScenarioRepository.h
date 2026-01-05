@@ -41,7 +41,7 @@ class ScenarioRepository
 public:
     ~ScenarioRepository() = default;
     void addScenario(Scenario const * const pScenario);
-    auto size();
+    qsizetype size();
     const Scenario & operator[](qsizetype index);
     static ScenarioRepository & global();
 

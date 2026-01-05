@@ -36,7 +36,7 @@ Scenario::Scenario(QByteArrayView sourceFile, qint32 sourceLine, QByteArrayView 
     m_scenarioName(scenarioName),
     m_scenarioFunction(f)
 {
-    // ScenarioRepository::addScenario(this);
+    ScenarioRepository::global().addScenario(this);
 }
 
 }

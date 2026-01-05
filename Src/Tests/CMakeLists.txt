@@ -6,7 +6,7 @@ add_subdirectory(Resources)
 qt_add_executable(Tests)
 target_sources(Tests PRIVATE main.cpp)
 find_package(Qt6 COMPONENTS Core Concurrent REQUIRED)
-add_dependencies(Tests SettingsFromCmdLineTestApp)
+add_dependencies(Tests SettingsFromCmdLineTestApp SpectatorStoresScenariosTestApp)
 target_link_libraries(Tests
     PRIVATE
     Spectator
