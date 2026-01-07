@@ -25,7 +25,13 @@
 //
 
 #include "ScenarioRunner.h"
+#include "Generator.h"
 #include <QtLogging>
+#include <QDebug>
+#include <QElapsedTimer>
+#include <QString>
+
+using namespace Qt::StringLiterals;
 
 namespace Spectator
 {
@@ -50,8 +56,8 @@ bool ScenarioRunner::tryPushSection(Section const * const pSection)
                 return true;
             }
         case State::HeadingForRoot:
-            m_currentSectionHasUnvisitedChildren = m_currentSectionHasUnvisitedChildren
-                                                   || !m_sectionsWithFullyVisitedChildren.contains(pSection);
+            m_currentPathHasUnvisitedChildren = m_currentPathHasUnvisitedChildren
+                                                || !m_sectionsWithFullyVisitedChildren.contains(pSection);
             return false;
     }
 }
@@ -62,17 +68,29 @@ void ScenarioRunner::popSection(Section const * const pSection)
     if (m_state == State::HeadingForLeaf)
     {
         m_state = State::HeadingForRoot;
-        m_currentSectionHasUnvisitedChildren = false;
+        tryToAdvanceGeneratorsOnCurrentPath();
+        m_pathToLeafSection = m_sectionsStack;
+        m_currentPathHasUnvisitedChildren = !hasConsumedAllGeneratorDataOnCurrentPath();
     }
-    if (!m_currentSectionHasUnvisitedChildren)
+    if (!m_currentPathHasUnvisitedChildren)
         m_sectionsWithFullyVisitedChildren.insert(pSection);
     m_sectionsStack.pop();
-    m_hasVisitedAllLeafNodes = m_sectionsStack.isEmpty() && !m_currentSectionHasUnvisitedChildren;
-    m_currentSectionHasUnvisitedChildren = false;
+    m_hasVisitedAllLeafNodes = m_sectionsStack.isEmpty()
+                               && hasConsumedAllGeneratorDataOnCurrentPath()
+                               && !m_currentPathHasUnvisitedChildren;
 }
 
 qsizetype ScenarioRunner::getGeneratorIndex(Generator const * const generator)
 {
+    if (!m_isValidatingGeneratorStack)
+        m_generatorsStack.push({generator, 0});
+    else if (m_idxNextGenerator >= m_generatorsStack.size() || m_generatorsStack[m_idxNextGenerator].first != generator)
+    {
+        qFatal() << QString(u"Generators must be declared in the section's outermost scope "
+                             "(the entire section body). Generator at %1:%2 has not."_s)
+                             .arg(generator->sourceFile()).arg(generator->sourceLine());
+    }
+    return m_generatorsStack[m_idxNextGenerator++].second;
 }
 
 ScenarioRunner & ScenarioRunner::current()
@@ -92,10 +110,48 @@ ScenarioRunResults ScenarioRunner::runScenario()
     reset();
     do
     {
-        m_scenario.scenarioFunction()();
+        runScenarioPath();
     } while (!hasVisitedAllLeafNodes());
     m_pCurrentRunner = nullptr;
     return m_scenarioRunResults;
+}
+
+void ScenarioRunner::runScenarioPath()
+{
+    QElapsedTimer elapsedTimer;
+    elapsedTimer.start();
+    qsizetype runCount = 0;
+    m_successfullRequireCounter = 0;
+    do
+    {
+        // TODO catch SpectatorException
+        ++runCount;
+        m_isValidatingGeneratorStack = !m_generatorsStack.isEmpty();
+        m_scenario.scenarioFunction()();
+    } while (!hasConsumedAllGeneratorDataOnCurrentPath());
+    const auto elapsedTimeInNSecs = elapsedTimer.nsecsElapsed();
+    m_scenarioRunResults.addScenarioPath(m_pathToLeafSection, m_successfullRequireCounter, runCount, elapsedTimeInNSecs);
+}
+
+void ScenarioRunner::tryToAdvanceGeneratorsOnCurrentPath()
+{
+    m_hasConsumedAllGeneratorDataOnCurrentPath = true;
+    if (!m_generatorsStack.isEmpty())
+    {
+        for (qsizetype idx = (m_generatorsStack.size() - 1); idx >= 0; --idx)
+        {
+            auto & currentGenerator = m_generatorsStack[idx];
+            if (currentGenerator.second < (currentGenerator.first->size() - 1))
+            {
+                ++currentGenerator.second;
+                for (qsizetype idxToReset = (idx + 1); idxToReset < m_generatorsStack.size(); ++idxToReset)
+                    m_generatorsStack[idxToReset].second = 0;
+                m_hasConsumedAllGeneratorDataOnCurrentPath = false;
+                return;
+            }
+        }
+        m_generatorsStack.clear();
+    }
 }
 
 }

@@ -59,6 +59,9 @@ public:
         const auto currentValue = minVal + stepVal * currentIndex;
         return currentValue;
     }
+    inline qsizetype size() const {return m_size;}
+    inline QByteArrayView sourceFile() const {return m_sourceFile;}
+    inline qint32 sourceLine() const {return m_sourceLine;}
 
 private:
     static qsizetype getGeneratorIndex(Generator const * const generator);

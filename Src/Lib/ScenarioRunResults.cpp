@@ -29,6 +29,23 @@
 namespace Spectator
 {
 
-
+void ScenarioRunResults::addScenarioPath(QStack<Section const *> pathToLeafSection,
+                                         qsizetype successfullRequireCount,
+                                         qsizetype runCount,
+                                         qint64 elapsedTimeInNSecs)
+{
+    if (!m_scenarioPaths.contains(pathToLeafSection.top()))
+        m_scenarioPaths.insert(pathToLeafSection.top(), {.pathToLeafSection = pathToLeafSection,
+                                .successfullRequireCount = successfullRequireCount,
+                                .runCount = runCount,
+                                .elapsedTimeInNSecs = elapsedTimeInNSecs});
+    else
+    {
+        auto & scenarioPathRun = m_scenarioPaths[pathToLeafSection.top()];
+        scenarioPathRun.successfullRequireCount += successfullRequireCount;
+        scenarioPathRun.runCount += runCount;
+        scenarioPathRun.elapsedTimeInNSecs += elapsedTimeInNSecs;
+    }
+}
 
 }

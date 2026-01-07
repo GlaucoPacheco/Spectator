@@ -31,8 +31,9 @@
 #include "ScenarioRunResults.h"
 #include <QStack>
 #include <QSet>
-#include <QElapsedTimer>
 #include <QtClassHelperMacros>
+#include <QtTypes>
+#include <utility>
 
 namespace Spectator
 {
@@ -61,13 +62,14 @@ private:
         m_sectionsStack.clear();
         m_generatorsStack.clear();
         m_sectionsWithFullyVisitedChildren.clear();
-        m_currentSectionHasUnvisitedChildren = false;
+        m_currentPathHasUnvisitedChildren = false;
         m_hasVisitedAllLeafNodes = false;
-        m_elapsedTimer.start();
         m_successfullRequireCounter = 0;
     }
     void runScenarioPath();
-    inline bool hasVisitedAllLeafNodes() {return m_hasVisitedAllLeafNodes;}
+    void tryToAdvanceGeneratorsOnCurrentPath();
+    inline bool hasConsumedAllGeneratorDataOnCurrentPath() const {return m_hasConsumedAllGeneratorDataOnCurrentPath;}
+    inline bool hasVisitedAllLeafNodes() const {return m_hasVisitedAllLeafNodes;}
 
 private:
     static constinit thread_local ScenarioRunner * m_pCurrentRunner;
@@ -76,13 +78,15 @@ private:
     State m_state = State::HeadingForLeaf;
     ScenarioRunResults m_scenarioRunResults;
     QStack<Section const *> m_sectionsStack;
-    QStack<Generator const *> m_generatorsStack;
+    QStack<Section const *> m_pathToLeafSection;
+    QStack<std::pair<Generator const *, qsizetype>> m_generatorsStack;
+    qsizetype m_idxNextGenerator = 0;
+    bool m_isValidatingGeneratorStack = false;
     QSet<Section const *> m_sectionsWithFullyVisitedChildren;
-    bool m_currentSectionHasUnvisitedChildren = false;
+    bool m_currentPathHasUnvisitedChildren = false;
     bool m_hasVisitedAllLeafNodes = false;
-    QElapsedTimer m_elapsedTimer;
     qsizetype m_successfullRequireCounter = 0;
-
+    bool m_hasConsumedAllGeneratorDataOnCurrentPath = false;
 };
 
 }

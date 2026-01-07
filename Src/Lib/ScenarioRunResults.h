@@ -27,11 +27,35 @@
 #ifndef SPECTATOR_SCENARIO_RUN_RESULTS_H
 #define SPECTATOR_SCENARIO_RUN_RESULTS_H
 
+#include <QStack>
+#include <QtTypes>
+#include <QMap>
+
 namespace Spectator
 {
 
+class Section;
+
+struct ScenarioPathRun
+{
+    QStack<Section const *> pathToLeafSection;
+    qsizetype successfullRequireCount = 0;
+    qsizetype runCount = 0;
+    qint64 elapsedTimeInNSecs = 0;
+};
+
 class ScenarioRunResults
 {
+public:
+    ScenarioRunResults() = default;
+    ~ScenarioRunResults() = default;
+    void addScenarioPath(QStack<Section const *> pathToLeafSection,
+                         qsizetype successfullRequireCount,
+                         qsizetype runCount,
+                         qint64 elapsedTimeInNSecs);
+
+private:
+    QMap<Section const *, ScenarioPathRun> m_scenarioPaths;
 };
 
 }
