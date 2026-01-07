@@ -41,6 +41,8 @@ constinit thread_local ScenarioRunner * ScenarioRunner::m_pCurrentRunner = nullp
 ScenarioRunner::ScenarioRunner(const Scenario & scenario) :
     m_scenario(scenario)
 {
+    m_sectionsStack.reserve(16);
+    m_generatorsStack.reserve(8);
 }
 
 bool ScenarioRunner::tryPushSection(Section const * const pSection)
