@@ -30,6 +30,7 @@
 #include "Scenario.h"
 #include "ScenarioRunResults.h"
 #include <QStack>
+#include <QSet>
 #include <QElapsedTimer>
 #include <QtClassHelperMacros>
 
@@ -48,21 +49,39 @@ public:
     bool tryPushSection(Section const * const pSection);
     void popSection(Section const * const pSection);
     qsizetype getGeneratorIndex(Generator const * const generator);
-    inline void incrementSuccessfullRequireCount() {++m_successfullRequireCount;}
+    inline void incrementSuccessfullRequireCounter() {++m_successfullRequireCounter;}
     static ScenarioRunner & current();
     ScenarioRunResults runScenario();
 
 private:
-    bool hasVisitedAllLeafNodes() {return false;}
+    inline void reset()
+    {
+        m_state = State::HeadingForLeaf;
+        m_scenarioRunResults = {};
+        m_sectionsStack.clear();
+        m_generatorsStack.clear();
+        m_sectionsWithFullyVisitedChildren.clear();
+        m_currentSectionHasUnvisitedChildren = false;
+        m_hasVisitedAllLeafNodes = false;
+        m_elapsedTimer.start();
+        m_successfullRequireCounter = 0;
+    }
+    void runScenarioPath();
+    inline bool hasVisitedAllLeafNodes() {return m_hasVisitedAllLeafNodes;}
 
 private:
     static constinit thread_local ScenarioRunner * m_pCurrentRunner;
     const Scenario & m_scenario;
+    enum class State {HeadingForLeaf, HeadingForRoot};
+    State m_state = State::HeadingForLeaf;
     ScenarioRunResults m_scenarioRunResults;
-    QStack<Section*> m_sectionsStack;
-    QStack<Generator*> m_generatorsStack;
+    QStack<Section const *> m_sectionsStack;
+    QStack<Generator const *> m_generatorsStack;
+    QSet<Section const *> m_sectionsWithFullyVisitedChildren;
+    bool m_currentSectionHasUnvisitedChildren = false;
+    bool m_hasVisitedAllLeafNodes = false;
     QElapsedTimer m_elapsedTimer;
-    qsizetype m_successfullRequireCount = 0;
+    qsizetype m_successfullRequireCounter = 0;
 
 };
 

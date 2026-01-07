@@ -39,10 +39,36 @@ ScenarioRunner::ScenarioRunner(const Scenario & scenario) :
 
 bool ScenarioRunner::tryPushSection(Section const * const pSection)
 {
+    switch (m_state)
+    {
+        case State::HeadingForLeaf:
+            if (m_sectionsWithFullyVisitedChildren.contains(pSection))
+                return false;
+            else
+            {
+                m_sectionsStack.push(pSection);
+                return true;
+            }
+        case State::HeadingForRoot:
+            m_currentSectionHasUnvisitedChildren = m_currentSectionHasUnvisitedChildren
+                                                   || !m_sectionsWithFullyVisitedChildren.contains(pSection);
+            return false;
+    }
 }
 
 void ScenarioRunner::popSection(Section const * const pSection)
 {
+    assert(m_sectionsStack.front() == pSection);
+    if (m_state == State::HeadingForLeaf)
+    {
+        m_state = State::HeadingForRoot;
+        m_currentSectionHasUnvisitedChildren = false;
+    }
+    if (!m_currentSectionHasUnvisitedChildren)
+        m_sectionsWithFullyVisitedChildren.insert(pSection);
+    m_sectionsStack.pop();
+    m_hasVisitedAllLeafNodes = m_sectionsStack.isEmpty() && !m_currentSectionHasUnvisitedChildren;
+    m_currentSectionHasUnvisitedChildren = false;
 }
 
 qsizetype ScenarioRunner::getGeneratorIndex(Generator const * const generator)
@@ -51,6 +77,10 @@ qsizetype ScenarioRunner::getGeneratorIndex(Generator const * const generator)
 
 ScenarioRunner & ScenarioRunner::current()
 {
+    if (m_pCurrentRunner)
+        return *m_pCurrentRunner;
+    else
+        qFatal("Failed to fetch current scenario runner. No scenario runner has been set for this thread.");
 }
 
 ScenarioRunResults ScenarioRunner::runScenario()
@@ -59,9 +89,10 @@ ScenarioRunResults ScenarioRunner::runScenario()
         qFatal("Failed to set current scenario runner. There is another scenario being ran on this thread and only one scenario can be run at a time per thread.");
     else [[likely]]
         m_pCurrentRunner = this;
+    reset();
     do
     {
-
+        m_scenario.scenarioFunction()();
     } while (!hasVisitedAllLeafNodes());
     m_pCurrentRunner = nullptr;
     return m_scenarioRunResults;
