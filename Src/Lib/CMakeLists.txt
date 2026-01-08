@@ -22,7 +22,8 @@ qt_add_library(SpectatorObjs OBJECT
     SectionGuard.cpp
     SectionGuard.h
     Settings.cpp
-    Settings.h)
+    Settings.h
+    SpectatorException.h)
 
 find_package(Qt6 COMPONENTS Core Concurrent REQUIRED)
 target_link_libraries(SpectatorObjs
