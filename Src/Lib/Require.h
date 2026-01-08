@@ -24,21 +24,35 @@
 // Copyright (C) 2025 Glauco Pacheco <glaucopacheco@gmail.com>
 //
 
-#ifndef SPECTATOR_H
-#define SPECTATOR_H
+#ifndef SPECTATOR_REQUIRE_H
+#define SPECTATOR_REQUIRE_H
 
-#include "Require.h"
-#include "Scenario.h"
-#include "ScenariosRunner.h"
-#include <QCoreApplication>
+#include "SpectatorGlobals.h"
+#include "MacroHelpers.h"
+#include <QByteArrayView>
+#include <QtTypes>
 
-#define SPECTATOR_MAIN \
-    int main(int argc, char ** argv) \
-    { \
-        QCoreApplication app(argc, argv); \
-        ::Spectator::ScenariosRunner scenariosRunner; \
-        scenariosRunner.runScenarios(); \
-        return QCoreApplication::exec(); \
-    }
+namespace Spectator
+{
 
-#endif // SPECTATOR_H
+class SPECTATOR_LIB_EXPORT Require
+{
+public:
+    static void require(bool expr, QByteArrayView failureMessage, QByteArrayView sourceFile, qint32 sourceLine);
+    static qsizetype globalSuccessfulRequireCount();
+    static qsizetype globalUnsuccessfulRequireCount();
+    static void resetGlobalCounters();
+
+private:
+    Require() = delete;
+    ~Require() = delete;
+};
+
+}
+
+#define _SPECTATOR_REQUIRE_FAIL_MESSAGE(...) \
+    "REQUIRE(" #__VA_ARGS__ ") failed at file://" __FILE__ ":" _SPECTATOR_TO_STRING(__LINE__) "."
+
+#define REQUIRE(...) ::Spectator::Require::require(__VA_ARGS__, _SPECTATOR_REQUIRE_FAIL_MESSAGE(__VA_ARGS__), __FILE__, __LINE__);
+
+#endif // SPECTATOR_REQUIRE_H

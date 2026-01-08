@@ -27,31 +27,22 @@
 #ifndef SPECTATOR_SPECTATOR_EXCEPTION_H
 #define SPECTATOR_SPECTATOR_EXCEPTION_H
 
-#include <QByteArray>
-#include <QtTypes>
+#include "SpectatorGlobals.h"
+#include <QByteArrayView>
 #include <exception>
 
 namespace Spectator
 {
 
-class SpectatorException : public std::exception
+class SPECTATOR_LIB_EXPORT SpectatorException : public std::exception
 {
 public:
     SpectatorException(QByteArrayView message) : m_message(message) {}
-    SpectatorException(QByteArrayView message, QByteArrayView sourceFile, qint32 sourceLine) :
-        m_message(message)
-    {
-        m_message.append(" failed at file://")
-                .append(sourceFile)
-                .append(':')
-                .append(QByteArray::number(sourceLine))
-                .append('.');
-    };
     ~SpectatorException() override = default;
     const char* what() const noexcept override {return m_message.constData();}
 
 private:
-    QByteArray m_message;
+    QByteArrayView m_message;
 };
 
 }

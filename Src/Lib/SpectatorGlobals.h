@@ -24,21 +24,22 @@
 // Copyright (C) 2025 Glauco Pacheco <glaucopacheco@gmail.com>
 //
 
-#ifndef SPECTATOR_H
-#define SPECTATOR_H
+#ifndef SPECTATOR_SPECTATOR_GLOBALS_H
+#define SPECTATOR_SPECTATOR_GLOBALS_H
 
-#include "Require.h"
-#include "Scenario.h"
-#include "ScenariosRunner.h"
-#include <QCoreApplication>
+#include <QtCore/QtGlobal>
 
-#define SPECTATOR_MAIN \
-    int main(int argc, char ** argv) \
-    { \
-        QCoreApplication app(argc, argv); \
-        ::Spectator::ScenariosRunner scenariosRunner; \
-        scenariosRunner.runScenarios(); \
-        return QCoreApplication::exec(); \
-    }
+#if defined(SPECTATOR_LIB_LIBRARY)
+    #define SPECTATOR_LIB_EXPORT Q_DECL_EXPORT
+ #else
+    #define SPECTATOR_LIB_EXPORT Q_DECL_IMPORT
+ #endif
 
-#endif // SPECTATOR_H
+namespace Spectator
+{
+
+
+
+}
+
+#endif // SPECTATOR_SPECTATOR_GLOBALS_H

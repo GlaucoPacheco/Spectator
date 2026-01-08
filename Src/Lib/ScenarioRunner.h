@@ -50,8 +50,9 @@ public:
     bool tryPushSection(Section const * const pSection);
     void popSection(Section const * const pSection);
     qsizetype getGeneratorIndex(Generator const * const generator);
-    inline void incrementSuccessfullRequireCounter() {++m_successfullRequireCounter;}
+    inline void incrementSuccessfulRequireCounter() {++m_successfullRequireCounter;}
     static ScenarioRunner & current();
+    static bool hasCurrent();
     ScenarioRunResults runScenario();
 
 private:

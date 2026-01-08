@@ -7,6 +7,8 @@ qt_add_library(SpectatorObjs OBJECT
     Generator.h
     MacroHelpers.h
     NoDestroy.h
+    Require.cpp
+    Require.h
     Scenario.cpp
     Scenario.h
     ScenarioRepository.cpp
@@ -23,7 +25,8 @@ qt_add_library(SpectatorObjs OBJECT
     SectionGuard.h
     Settings.cpp
     Settings.h
-    SpectatorException.h)
+    SpectatorException.h
+    SpectatorGlobals.h)
 
 find_package(Qt6 COMPONENTS Core Concurrent REQUIRED)
 target_link_libraries(SpectatorObjs

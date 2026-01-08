@@ -103,6 +103,11 @@ ScenarioRunner & ScenarioRunner::current()
         qFatal("Failed to fetch current scenario runner. No scenario runner has been set for this thread.");
 }
 
+bool ScenarioRunner::hasCurrent()
+{
+    return m_pCurrentRunner != nullptr;
+}
+
 ScenarioRunResults ScenarioRunner::runScenario()
 {
     if (m_pCurrentRunner != nullptr) [[unlikely]]
