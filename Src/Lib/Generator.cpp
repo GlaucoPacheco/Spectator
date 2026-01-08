@@ -30,7 +30,7 @@
 namespace Spectator
 {
 
-Generator::Generator(qsizetype size, QByteArrayView sourceFile, qint32 sourceLine) :
+Generator::Generator(qsizetype size, QStringView sourceFile, qint32 sourceLine) :
     m_size(size),
     m_sourceFile(sourceFile),
     m_sourceLine(sourceLine)

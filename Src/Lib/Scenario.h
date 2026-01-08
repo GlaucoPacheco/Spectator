@@ -28,7 +28,7 @@
 #define SPECTATOR_SCENARIO_H
 
 #include "MacroHelpers.h"
-#include <QByteArrayView>
+#include <QStringView>
 #include <QtTypes>
 #include <QtClassHelperMacros>
 #include <functional>
@@ -41,24 +41,24 @@ class Scenario
     Q_DISABLE_COPY_MOVE(Scenario)
 public:
     using F = void(*)();
-    Scenario(QByteArrayView sourceFile, qint32 sourceLine, QByteArrayView scenarioName, F f);
+    Scenario(QStringView sourceFile, qint32 sourceLine, QStringView scenarioName, F f);
     ~Scenario() = default;
-    inline QByteArrayView sourceFile() const {return m_sourceFile;}
+    inline QStringView sourceFile() const {return m_sourceFile;}
     inline qint32 sourceLine() const {return m_sourceLine;}
-    inline QByteArrayView scenarioName() const {return m_scenarioName;}
+    inline QStringView scenarioName() const {return m_scenarioName;}
     inline std::function<void()> scenarioFunction() const {return m_scenarioFunction;}
 
 private:
-    const QByteArrayView m_sourceFile;
+    const QStringView m_sourceFile;
     const qint32 m_sourceLine;
-    const QByteArrayView m_scenarioName;
+    const QStringView m_scenarioName;
     const std::function<void()> m_scenarioFunction;
 };
 
 }
 
 #define SCENARIO(SCENARIO_NAME) static void _SPECTATOR_CONCATENATE_(_spectator_scenario_fcn_, __LINE__)(); \
-static ::Spectator::Scenario _SPECTATOR_CONCATENATE_(_spectator_scenario, __LINE__)(__FILE__, __LINE__, "Scenario: " SCENARIO_NAME, _SPECTATOR_CONCATENATE_(_spectator_scenario_fcn_, __LINE__)); \
+static ::Spectator::Scenario _SPECTATOR_CONCATENATE_(_spectator_scenario, __LINE__)(_SPECTATOR_TO_UTF_16_STRING_LITERAL(__FILE__), __LINE__, _SPECTATOR_TO_UTF_16_STRING_LITERAL("Scenario: " SCENARIO_NAME), _SPECTATOR_CONCATENATE_(_spectator_scenario_fcn_, __LINE__)); \
 static void _SPECTATOR_CONCATENATE_(_spectator_scenario_fcn_, __LINE__)()
 
 #endif // SPECTATOR_SCENARIO_H

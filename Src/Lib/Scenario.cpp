@@ -30,7 +30,7 @@
 namespace Spectator
 {
 
-Scenario::Scenario(QByteArrayView sourceFile, qint32 sourceLine, QByteArrayView scenarioName, F f) :
+Scenario::Scenario(QStringView sourceFile, qint32 sourceLine, QStringView scenarioName, F f) :
     m_sourceFile(sourceFile),
     m_sourceLine(sourceLine),
     m_scenarioName(scenarioName),

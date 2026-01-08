@@ -27,7 +27,7 @@
 #ifndef SPECTATOR_GENERATOR_H
 #define SPECTATOR_GENERATOR_H
 
-#include <QByteArrayView>
+#include <QStringView>
 #include <QtClassHelperMacros>
 #include <QtTypes>
 
@@ -44,7 +44,7 @@ class Generator
 {
     Q_DISABLE_COPY_MOVE(Generator)
 public:
-    Generator(qsizetype size, QByteArrayView sourceFile, qint32 sourceLine);
+    Generator(qsizetype size, QStringView sourceFile, qint32 sourceLine);
     ~Generator() = default;
     template <typename T>
     T currentValue(std::initializer_list<T> initList) const
@@ -60,7 +60,7 @@ public:
         return currentValue;
     }
     inline qsizetype size() const {return m_size;}
-    inline QByteArrayView sourceFile() const {return m_sourceFile;}
+    inline QStringView sourceFile() const {return m_sourceFile;}
     inline qint32 sourceLine() const {return m_sourceLine;}
 
 private:
@@ -68,7 +68,7 @@ private:
 
 private:
     const qsizetype m_size;
-    const QByteArrayView m_sourceFile;
+    const QStringView m_sourceFile;
     const qint32 m_sourceLine;
 };
 
@@ -76,16 +76,16 @@ private:
 
 #define AS(...) (::Spectator::GeneratorTypeHolder<__VA_ARGS__>)
 #define GENERATE(TypeHolder, ...) \
-    static constexpr std::initializer_list<TypeHolder::Type> _SPECTATOR_CONCATENATE_(_spectator_generator_list, __LINE__) = {__VA_ARGS__}; \
-    static ::Spectator::Generator _SPECTATOR_CONCATENATE_(_spectator_generator, __LINE__)(_SPECTATOR_CONCATENATE_(_spectator_generator_list, __LINE__).size(), __FILE__, __LINE__); \
+    const static std::initializer_list<TypeHolder::Type> _SPECTATOR_CONCATENATE_(_spectator_generator_list, __LINE__) = {__VA_ARGS__}; \
+    const static ::Spectator::Generator _SPECTATOR_CONCATENATE_(_spectator_generator, __LINE__)(_SPECTATOR_CONCATENATE_(_spectator_generator_list, __LINE__).size(), _SPECTATOR_TO_UTF_16_STRING_LITERAL(__FILE__), __LINE__); \
     _SPECTATOR_CONCATENATE_(_spectator_generator, __LINE__).currentValue<TypeHolder::Type>(_SPECTATOR_CONCATENATE_(_spectator_generator_list, __LINE__));
 #define GENERATE_RANGE(TypeHolder, MIN_VAL, MAX_VAL) \
     static_assert(MAX_VAL > MIN_VAL); \
-    static ::Spectator::Generator _SPECTATOR_CONCATENATE_(_spectator_generator, __LINE__)(MAX_VAL - MIN_VAL + 1, __FILE__, __LINE__); \
+    static ::Spectator::Generator _SPECTATOR_CONCATENATE_(_spectator_generator, __LINE__)(MAX_VAL - MIN_VAL + 1, _SPECTATOR_TO_UTF_16_STRING_LITERAL(__FILE__), __LINE__); \
     _SPECTATOR_CONCATENATE_(_spectator_generator, __LINE__).currentRangeValue<TypeHolder::Type>(MIN_VAL, MAX_VAL, 1);
 #define GENERATE_RANGE_WITH_STEP(TypeHolder, MIN_VAL, MAX_VAL, STEP_VAL) \
     static_assert(MAX_VAL > MIN_VAL && STEP_VAL > 0); \
-    static ::Spectator::Generator _SPECTATOR_CONCATENATE_(_spectator_generator, __LINE__)((MAX_VAL - MIN_VAL + 1)/STEP_VAL, __FILE__, __LINE__); \
+    static ::Spectator::Generator _SPECTATOR_CONCATENATE_(_spectator_generator, __LINE__)((MAX_VAL - MIN_VAL + 1)/STEP_VAL, _SPECTATOR_TO_UTF_16_STRING_LITERAL(__FILE__), __LINE__); \
     _SPECTATOR_CONCATENATE_(_spectator_generator, __LINE__).currentRangeValue<TypeHolder::Type>(MIN_VAL, MAX_VAL, STEP_VAL);
 
 #endif // SPECTATOR_GENERATOR_H

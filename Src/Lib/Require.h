@@ -50,6 +50,6 @@ private:
 
 }
 
-#define REQUIRE(...) ::Spectator::Require::require(__VA_ARGS__, _SPECTATOR_TO_STRING(__VA_ARGS__), _SPECTATOR_TO_UTF_16_STRING(__FILE__), __LINE__)
+#define REQUIRE(...) ::Spectator::Require::require(__VA_ARGS__, _SPECTATOR_MAKE_UTF_16_STRING(__VA_ARGS__), _SPECTATOR_TO_UTF_16_STRING_LITERAL(__FILE__), __LINE__)
 
 #endif // SPECTATOR_REQUIRE_H

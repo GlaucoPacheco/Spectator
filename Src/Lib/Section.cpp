@@ -29,7 +29,7 @@
 namespace Spectator
 {
 
-Section::Section(QByteArrayView sourceFile, qint32 sourceLine, QByteArrayView sectionName) :
+Section::Section(QStringView sourceFile, qint32 sourceLine, QStringView sectionName) :
     m_sourceFile(sourceFile),
     m_sourceLine(sourceLine),
     m_sectionName(sectionName)

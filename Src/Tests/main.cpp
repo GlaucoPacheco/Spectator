@@ -147,9 +147,9 @@ static void spectatorStoresScenarios()
         qFatal("Spectator did not store the correct number of scenarios.");
     struct ScenarioData
     {
-        QByteArray sourceFile;
+        QString sourceFile;
         qint32 sourceLine;
-        QByteArray scenarioName;
+        QString scenarioName;
         inline bool operator==(const ScenarioData & other) const
         {
             return sourceFile == other.sourceFile
@@ -170,11 +170,11 @@ static void spectatorStoresScenarios()
     if (!scenariosDir.cd(u"Resources"_s) || !scenariosDir.cd(u"SpectatorStoresScenariosTestApp"_s))
         qFatal("Failed to navigate to directory containing scenario source files.");
     const auto expectedScenariosData = QList<ScenarioData>()
-        << ScenarioData{.sourceFile=scenariosDir.absoluteFilePath(u"scenarios_1.cpp"_s).toUtf8(), .sourceLine=3, .scenarioName="Scenario: A Scenario"}
-        << ScenarioData{.sourceFile=scenariosDir.absoluteFilePath(u"scenarios_1.cpp"_s).toUtf8(), .sourceLine=7, .scenarioName="Scenario: Another Scenario"}
-        << ScenarioData{.sourceFile=scenariosDir.absoluteFilePath(u"scenarios_1.cpp"_s).toUtf8(), .sourceLine=11, .scenarioName="Scenario: Yet Another Scenario"}
-        << ScenarioData{.sourceFile=scenariosDir.absoluteFilePath(u"scenarios_2.cpp"_s).toUtf8(), .sourceLine=4, .scenarioName="Scenario: Spectator is a really fast test framework"}
-        << ScenarioData{.sourceFile=scenariosDir.absoluteFilePath(u"scenarios_3.cpp"_s).toUtf8(), .sourceLine=5, .scenarioName="Scenario: Kourier is a blazingly fast HTTP server"};
+        << ScenarioData{.sourceFile=scenariosDir.absoluteFilePath(u"scenarios_1.cpp"_s), .sourceLine=3, .scenarioName=u"Scenario: A Scenario"_s}
+        << ScenarioData{.sourceFile=scenariosDir.absoluteFilePath(u"scenarios_1.cpp"_s), .sourceLine=7, .scenarioName=u"Scenario: Another Scenario"_s}
+        << ScenarioData{.sourceFile=scenariosDir.absoluteFilePath(u"scenarios_1.cpp"_s), .sourceLine=11, .scenarioName=u"Scenario: Yet Another Scenario"_s}
+        << ScenarioData{.sourceFile=scenariosDir.absoluteFilePath(u"scenarios_2.cpp"_s), .sourceLine=4, .scenarioName=u"Scenario: Spectator is a really fast test framework"_s}
+        << ScenarioData{.sourceFile=scenariosDir.absoluteFilePath(u"scenarios_3.cpp"_s), .sourceLine=5, .scenarioName=u"Scenario: Kourier is a blazingly fast HTTP server"_s};
     for (const auto & expectedScenarioData : expectedScenariosData)
     {
         if (!fetchedScenarios.contains(expectedScenarioData))

@@ -4,6 +4,7 @@
 #include <QTextStream>
 #include <QDataStream>
 #include <QByteArray>
+#include <QString>
 #include <cstdio>
 
 using namespace Spectator;
@@ -19,9 +20,9 @@ int main(int argc, char ** argv)
     for (auto i = 0; i < scenarioRepository.size(); ++i)
     {
         const auto & scenario = scenarioRepository[i];
-        dataStream << QByteArray(scenario.sourceFile());
+        dataStream << QString(scenario.sourceFile());
         dataStream << scenario.sourceLine();
-        dataStream << QByteArray(scenario.scenarioName());
+        dataStream << QString(scenario.scenarioName());
     }
     QTextStream outputStream(stdout);
     outputStream << buffer.toBase64();

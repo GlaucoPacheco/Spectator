@@ -27,7 +27,7 @@
 #ifndef SPECTATOR_SECTION_H
 #define SPECTATOR_SECTION_H
 
-#include <QByteArrayView>
+#include <QStringView>
 #include <QtTypes>
 #include <QtClassHelperMacros>
 
@@ -38,13 +38,13 @@ class Section
 {
     Q_DISABLE_COPY_MOVE(Section)
 public:
-    Section(QByteArrayView sourceFile, qint32 sourceLine, QByteArrayView sectionName);
+    Section(QStringView sourceFile, qint32 sourceLine, QStringView sectionName);
     ~Section() = default;
 
 private:
-    const QByteArrayView m_sourceFile;
+    const QStringView m_sourceFile;
     const qint32 m_sourceLine;
-    const QByteArrayView m_sectionName;
+    const QStringView m_sectionName;
 };
 
 }
