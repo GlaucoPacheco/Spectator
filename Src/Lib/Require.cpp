@@ -29,6 +29,8 @@
 #include "ScenarioRunner.h"
 #include "NoDestroy.h"
 #include <QByteArray>
+#include <QtLogging>
+#include <QDebug>
 #include <atomic>
 
 namespace Spectator
@@ -46,7 +48,7 @@ static std::atomic<qsizetype> & globalUnsuccessfulRequireCounter()
     return counter();
 }
 
-void Require::require(bool expr, QByteArrayView failureMessage, QByteArrayView sourceFile, qint32 sourceLine)
+void Require::require(bool expr, QStringView exprAsString, QStringView sourceFile, qint32 sourceLine)
 {
     if (expr) [[likely]]
     {
@@ -58,7 +60,14 @@ void Require::require(bool expr, QByteArrayView failureMessage, QByteArrayView s
     else [[unlikely]]
     {
         ++globalUnsuccessfulRequireCounter();
-        throw SpectatorException(failureMessage);
+        QString failureMessage = QString().append("REQUIRE(")
+                                          .append(exprAsString).append(u") failed at file://")
+                                          .append(sourceFile).append(':').append(QByteArray::number(sourceLine))
+                                          .append('.');
+        if (ScenarioRunner::hasCurrent()) [[likely]]
+            throw SpectatorException(failureMessage);
+        else [[unlikely]]
+            qFatal() << failureMessage;
     }
 }
 

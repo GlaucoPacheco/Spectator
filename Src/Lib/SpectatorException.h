@@ -28,21 +28,21 @@
 #define SPECTATOR_SPECTATOR_EXCEPTION_H
 
 #include "SpectatorGlobals.h"
-#include <QByteArrayView>
-#include <exception>
+#include <QStringView>
+#include <QString>
 
 namespace Spectator
 {
 
-class SPECTATOR_LIB_EXPORT SpectatorException : public std::exception
+class SPECTATOR_LIB_EXPORT SpectatorException
 {
 public:
-    SpectatorException(QByteArrayView message) : m_message(message) {}
-    ~SpectatorException() override = default;
-    const char* what() const noexcept override {return m_message.constData();}
+    SpectatorException(QStringView message) : m_message(message) {}
+    ~SpectatorException() = default;
+    QStringView message() const noexcept {return m_message;}
 
 private:
-    QByteArrayView m_message;
+    QString m_message;
 };
 
 }

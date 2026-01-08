@@ -29,7 +29,7 @@
 
 #include "SpectatorGlobals.h"
 #include "MacroHelpers.h"
-#include <QByteArrayView>
+#include <QStringView>
 #include <QtTypes>
 
 namespace Spectator
@@ -38,7 +38,7 @@ namespace Spectator
 class SPECTATOR_LIB_EXPORT Require
 {
 public:
-    static void require(bool expr, QByteArrayView failureMessage, QByteArrayView sourceFile, qint32 sourceLine);
+    static void require(bool expr, QStringView exprAsString, QStringView sourceFile, qint32 sourceLine);
     static qsizetype globalSuccessfulRequireCount();
     static qsizetype globalUnsuccessfulRequireCount();
     static void resetGlobalCounters();
@@ -50,9 +50,6 @@ private:
 
 }
 
-#define _SPECTATOR_REQUIRE_FAIL_MESSAGE(...) \
-    "REQUIRE(" #__VA_ARGS__ ") failed at file://" __FILE__ ":" _SPECTATOR_TO_STRING(__LINE__) "."
-
-#define REQUIRE(...) ::Spectator::Require::require(__VA_ARGS__, _SPECTATOR_REQUIRE_FAIL_MESSAGE(__VA_ARGS__), __FILE__, __LINE__);
+#define REQUIRE(...) ::Spectator::Require::require(__VA_ARGS__, _SPECTATOR_TO_STRING(__VA_ARGS__), _SPECTATOR_TO_UTF_16_STRING(__FILE__), __LINE__)
 
 #endif // SPECTATOR_REQUIRE_H
