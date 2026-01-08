@@ -1,3 +1,5 @@
+Spectator is under heavy development and is not ready yet for prime time!
+
 Spectator is a test framework where tests are written in the Gherkin style.
 
 If you are evaluating Kourier for your business, check the source files ending 
