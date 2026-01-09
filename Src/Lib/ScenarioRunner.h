@@ -31,6 +31,8 @@
 #include "ScenarioRunResults.h"
 #include <QStack>
 #include <QSet>
+#include <QMap>
+#include <QString>
 #include <QtClassHelperMacros>
 #include <QtTypes>
 #include <utility>
@@ -50,9 +52,10 @@ public:
     bool tryPushSection(Section const * const pSection);
     void popSection(Section const * const pSection);
     qsizetype getGeneratorIndex(Generator const * const generator);
-    inline void incrementSuccessfulRequireCounter() {++m_successfullRequireCounter;}
     static ScenarioRunner & current();
     static bool hasCurrent();
+    static void incrementSuccessfulRequireCounter();
+    static void addInfoMessage(QString message);
     ScenarioRunResults runScenario();
 
 private:
@@ -80,6 +83,7 @@ private:
     ScenarioRunResults m_scenarioRunResults;
     QStack<Section const *> m_sectionsStack;
     QStack<Section const *> m_pathToLeafSection;
+    QMap<Section const *, QSet<QString>> m_infoMessages;
     QStack<std::pair<Generator const *, qsizetype>> m_generatorsStack;
     qsizetype m_idxNextGenerator = 0;
     bool m_isValidatingGeneratorStack = false;

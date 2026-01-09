@@ -28,8 +28,10 @@
 #define SPECTATOR_SCENARIO_RUN_RESULTS_H
 
 #include <QStack>
-#include <QtTypes>
 #include <QMap>
+#include <QSet>
+#include <QString>
+#include <QtTypes>
 
 namespace Spectator
 {
@@ -39,6 +41,7 @@ class Section;
 struct ScenarioPathRun
 {
     QStack<Section const *> pathToLeafSection;
+    QMap<Section const *, QSet<QString>> infoMessages;
     qsizetype successfullRequireCount = 0;
     qsizetype runCount = 0;
     qint64 elapsedTimeInNSecs = 0;
@@ -50,6 +53,7 @@ public:
     ScenarioRunResults() = default;
     ~ScenarioRunResults() = default;
     void addScenarioPath(QStack<Section const *> pathToLeafSection,
+                         QMap<Section const *, QSet<QString>> infoMessages,
                          qsizetype successfullRequireCount,
                          qsizetype runCount,
                          qint64 elapsedTimeInNSecs);

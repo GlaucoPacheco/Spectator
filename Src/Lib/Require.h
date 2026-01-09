@@ -39,9 +39,6 @@ class SPECTATOR_LIB_EXPORT Require
 {
 public:
     static void require(bool expr, QStringView exprAsString, QStringView sourceFile, qint32 sourceLine);
-    static qsizetype globalSuccessfulRequireCount();
-    static qsizetype globalUnsuccessfulRequireCount();
-    static void resetGlobalCounters();
 
 private:
     Require() = delete;

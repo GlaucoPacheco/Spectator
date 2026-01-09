@@ -26,15 +26,35 @@
 
 #include "ScenarioRunner.h"
 #include "Generator.h"
+#include "NoDestroy.h"
 #include <QtLogging>
 #include <QDebug>
 #include <QElapsedTimer>
 #include <QString>
+#include <QByteArray>
+#include <QMutex>
+#include <QMutexLocker>
+#include <Qt>
+#include <atomic>
+#include <exception>
 
 using namespace Qt::StringLiterals;
 
 namespace Spectator
 {
+
+static std::atomic<qsizetype> & globalSuccessfulRequireCounter()
+{
+    static constinit NoDestroy<std::atomic<qsizetype>> counter{0};
+    return counter();
+}
+
+static QSet<QString> * globalInfoMessages()
+{
+    static NoDestroy<QSet<QString>*> pInstance{new QSet<QString>};
+    static NoDestroyPtrDeleter<QSet<QString>*> instanceDeleter(pInstance);
+    return pInstance();
+}
 
 constinit thread_local ScenarioRunner * ScenarioRunner::m_pCurrentRunner = nullptr;
 
@@ -108,6 +128,30 @@ bool ScenarioRunner::hasCurrent()
     return m_pCurrentRunner != nullptr;
 }
 
+void ScenarioRunner::incrementSuccessfulRequireCounter()
+{
+    if (hasCurrent())
+        ++m_pCurrentRunner->m_successfullRequireCounter;
+    else
+        ++globalSuccessfulRequireCounter();
+}
+
+void ScenarioRunner::addInfoMessage(QString message)
+{
+    if (hasCurrent())
+        m_pCurrentRunner->m_infoMessages[m_pCurrentRunner->m_sectionsStack.top()].insert(message);
+    else
+    {
+        static NoDestroy<QMutex> lock;
+        QMutexLocker locker(&lock());
+        auto * pInfoMessages = globalInfoMessages();
+        if (pInfoMessages)
+            pInfoMessages->insert(message);
+        else
+            qInfo() << u"INFO: "_s << message << Qt::endl;
+    }
+}
+
 ScenarioRunResults ScenarioRunner::runScenario()
 {
     if (m_pCurrentRunner != nullptr) [[unlikely]]
@@ -131,13 +175,38 @@ void ScenarioRunner::runScenarioPath()
     m_successfullRequireCounter = 0;
     do
     {
-        // TODO catch SpectatorException
         ++runCount;
         m_isValidatingGeneratorStack = !m_generatorsStack.isEmpty();
-        m_scenario.scenarioFunction()();
+        try
+        {
+            m_scenario.scenarioFunction()();
+        }
+        catch(const std::exception &ex)
+        {
+            QString failureMessage = QString().append(u"TEST FAILED!\n\n"_s)
+                                              .append(u"Scenario: "_s)
+                                              .append(m_scenario.scenarioName())
+                                              .append(u" located at file://"_s)
+                                              .append(m_scenario.sourceFile()).append(':')
+                                              .append(QString::number(m_scenario.sourceLine())).append('.')
+                                              .append(u"\nHas thrown an unhandled std::exception with message: "_s)
+                                              .append(QString::fromUtf8(ex.what()));
+            qFatal() << failureMessage << Qt::endl;
+        }
+        catch(...)
+        {
+            QString failureMessage = QString().append(u"TEST FAILED!\n\n"_s)
+                                              .append(u"Scenario: "_s)
+                                              .append(m_scenario.scenarioName())
+                                              .append(u" located at file://"_s)
+                                              .append(m_scenario.sourceFile()).append(':')
+                                              .append(QString::number(m_scenario.sourceLine())).append('.')
+                                              .append(u"\nHas thrown an unhandled non-standard exception."_s);
+            qFatal() << failureMessage << Qt::endl;
+        }
     } while (!hasConsumedAllGeneratorDataOnCurrentPath());
     const auto elapsedTimeInNSecs = elapsedTimer.nsecsElapsed();
-    m_scenarioRunResults.addScenarioPath(m_pathToLeafSection, m_successfullRequireCounter, runCount, elapsedTimeInNSecs);
+    m_scenarioRunResults.addScenarioPath(m_pathToLeafSection, m_infoMessages, m_successfullRequireCounter, runCount, elapsedTimeInNSecs);
 }
 
 void ScenarioRunner::tryToAdvanceGeneratorsOnCurrentPath()

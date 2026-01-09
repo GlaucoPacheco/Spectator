@@ -30,12 +30,14 @@ namespace Spectator
 {
 
 void ScenarioRunResults::addScenarioPath(QStack<Section const *> pathToLeafSection,
+                                         QMap<Section const *, QSet<QString>> infoMessages,
                                          qsizetype successfullRequireCount,
                                          qsizetype runCount,
                                          qint64 elapsedTimeInNSecs)
 {
     if (!m_scenarioPaths.contains(pathToLeafSection.top()))
         m_scenarioPaths.insert(pathToLeafSection.top(), {.pathToLeafSection = pathToLeafSection,
+                                .infoMessages = infoMessages,
                                 .successfullRequireCount = successfullRequireCount,
                                 .runCount = runCount,
                                 .elapsedTimeInNSecs = elapsedTimeInNSecs});

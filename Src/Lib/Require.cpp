@@ -25,61 +25,30 @@
 //
 
 #include "Require.h"
-#include "SpectatorException.h"
 #include "ScenarioRunner.h"
-#include "NoDestroy.h"
-#include <QByteArray>
+#include <QString>
 #include <QtLogging>
 #include <QDebug>
-#include <atomic>
+#include <Qt>
+
+using namespace Qt::StringLiterals;
 
 namespace Spectator
 {
 
-static std::atomic<qsizetype> & globalSuccessfulRequireCounter()
-{
-    static constinit NoDestroy<std::atomic<qsizetype>> counter{0};
-    return counter();
-}
-
-static std::atomic<qsizetype> & globalUnsuccessfulRequireCounter()
-{
-    static constinit NoDestroy<std::atomic<qsizetype>> counter{0};
-    return counter();
-}
-
 void Require::require(bool expr, QStringView exprAsString, QStringView sourceFile, qint32 sourceLine)
 {
     if (expr) [[likely]]
-    {
-        if (ScenarioRunner::hasCurrent()) [[likely]]
-            ScenarioRunner::current().incrementSuccessfulRequireCounter();
-        else [[unlikely]]
-            ++globalSuccessfulRequireCounter();
-    }
+        ScenarioRunner::incrementSuccessfulRequireCounter();
     else [[unlikely]]
     {
-        ++globalUnsuccessfulRequireCounter();
-        QString failureMessage = QString().append("REQUIRE(")
-                                          .append(exprAsString).append(u") failed at file://")
-                                          .append(sourceFile).append(':').append(QByteArray::number(sourceLine))
+        QString failureMessage = QString().append(u"TEST FAILED!\n\n"_s)
+                                          .append(u"REQUIRE("_s)
+                                          .append(exprAsString).append(u") failed at file://"_s)
+                                          .append(sourceFile).append(':').append(QString::number(sourceLine))
                                           .append('.');
-        if (ScenarioRunner::hasCurrent()) [[likely]]
-            throw SpectatorException(failureMessage);
-        else [[unlikely]]
-            qFatal() << failureMessage;
+        qFatal() << failureMessage << Qt::endl;;
     }
-}
-
-qsizetype Require::globalSuccessfulRequireCount()
-{
-    return globalSuccessfulRequireCounter();
-}
-
-void Require::resetGlobalCounters()
-{
-    globalSuccessfulRequireCounter() = 0;
-    globalUnsuccessfulRequireCounter() = 0;
 }
 
 }
