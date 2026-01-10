@@ -36,6 +36,7 @@
 #include <QMutex>
 #include <QMutexLocker>
 #include <Qt>
+#include <QTextStream>
 #include <atomic>
 #include <exception>
 
@@ -48,6 +49,12 @@ static std::atomic<qsizetype> & globalSuccessfulRequireCounter()
 {
     static constinit NoDestroy<std::atomic<qsizetype>> counter{0};
     return counter();
+}
+
+static QMutex & globalInfoMessagesLock()
+{
+    NoDestroy<QMutex> lock;
+    return lock();
 }
 
 static QSet<QString> * globalInfoMessages()
@@ -149,8 +156,7 @@ void ScenarioRunner::addInfoMessage(QString message)
         m_pCurrentRunner->m_infoMessages[m_pCurrentRunner->m_sectionsStack.top()].insert(message);
     else
     {
-        static NoDestroy<QMutex> lock;
-        QMutexLocker locker(&lock());
+        QMutexLocker locker(&globalInfoMessagesLock());
         auto * pInfoMessages = globalInfoMessages();
         if (pInfoMessages)
             pInfoMessages->insert(message);
@@ -172,6 +178,20 @@ ScenarioRunResults ScenarioRunner::runScenario(const Scenario & scenario)
     } while (!scenarioRunner.hasVisitedAllLeafNodes());
     m_pCurrentRunner = nullptr;
     return scenarioRunner.m_scenarioRunResults;
+}
+
+void ScenarioRunner::printGlobalStats(QString & buffer)
+{
+    QTextStream outputStream(&buffer, QIODeviceBase::WriteOnly);
+    outputStream << u"Global Scope"_s << Qt::endl;
+    QMutexLocker locker(&globalInfoMessagesLock());
+    auto *pGlobalInfoMessages = globalInfoMessages();
+    if (pGlobalInfoMessages) [[likely]]
+    {
+        for (const auto & message : *pGlobalInfoMessages)
+            outputStream << u"INFO: "_s << message << Qt::endl;
+    }
+    outputStream << u"Assertions: "_s << globalSuccessfulRequireCounter() << Qt::endl;
 }
 
 void ScenarioRunner::runScenarioPath()

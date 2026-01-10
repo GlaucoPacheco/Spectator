@@ -57,6 +57,7 @@ public:
     static void incrementUnsuccessfulRequireCounter(QString failureMessage);
     static void addInfoMessage(QString message);
     static ScenarioRunResults runScenario(const Scenario & scenario);
+    static void printGlobalStats(QString &buffer);
 
 private:
     inline static bool hasCurrent() {return m_pCurrentRunner != nullptr;}
