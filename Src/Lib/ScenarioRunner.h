@@ -53,23 +53,13 @@ public:
     void popSection(Section const * const pSection);
     qsizetype getGeneratorIndex(Generator const * const generator);
     static ScenarioRunner & current();
-    static bool hasCurrent();
     static void incrementSuccessfulRequireCounter();
+    static void incrementUnsuccessfulRequireCounter(QString failureMessage);
     static void addInfoMessage(QString message);
-    ScenarioRunResults runScenario();
+    static ScenarioRunResults runScenario(const Scenario & scenario);
 
 private:
-    inline void reset()
-    {
-        m_state = State::HeadingForLeaf;
-        m_scenarioRunResults = {};
-        m_sectionsStack.clear();
-        m_generatorsStack.clear();
-        m_sectionsWithFullyVisitedChildren.clear();
-        m_currentPathHasUnvisitedChildren = false;
-        m_hasVisitedAllLeafNodes = false;
-        m_successfullRequireCounter = 0;
-    }
+    inline static bool hasCurrent() {return m_pCurrentRunner != nullptr;}
     void runScenarioPath();
     void tryToAdvanceGeneratorsOnCurrentPath();
     inline bool hasConsumedAllGeneratorDataOnCurrentPath() const {return m_hasConsumedAllGeneratorDataOnCurrentPath;}
@@ -90,8 +80,10 @@ private:
     QSet<Section const *> m_sectionsWithFullyVisitedChildren;
     bool m_currentPathHasUnvisitedChildren = false;
     bool m_hasVisitedAllLeafNodes = false;
-    qsizetype m_successfullRequireCounter = 0;
+    qsizetype m_successfulRequireCounter = 0;
+    qsizetype m_unsuccessfulRequireCounter = 0;
     bool m_hasConsumedAllGeneratorDataOnCurrentPath = false;
+    QString m_failureMessage;
 };
 
 }

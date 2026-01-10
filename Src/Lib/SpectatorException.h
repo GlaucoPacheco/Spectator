@@ -28,7 +28,6 @@
 #define SPECTATOR_SPECTATOR_EXCEPTION_H
 
 #include "SpectatorGlobals.h"
-#include <QStringView>
 #include <QString>
 
 namespace Spectator
@@ -37,9 +36,9 @@ namespace Spectator
 class SPECTATOR_LIB_EXPORT SpectatorException
 {
 public:
-    SpectatorException(QStringView message) : m_message(message) {}
+    SpectatorException(QString message) : m_message(message) {}
     ~SpectatorException() = default;
-    QStringView message() const noexcept {return m_message;}
+    QString message() const noexcept {return m_message;}
 
 private:
     QString m_message;

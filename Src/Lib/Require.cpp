@@ -27,9 +27,6 @@
 #include "Require.h"
 #include "ScenarioRunner.h"
 #include <QString>
-#include <QtLogging>
-#include <QDebug>
-#include <Qt>
 
 using namespace Qt::StringLiterals;
 
@@ -42,12 +39,11 @@ void Require::require(bool expr, QStringView exprAsString, QStringView sourceFil
         ScenarioRunner::incrementSuccessfulRequireCounter();
     else [[unlikely]]
     {
-        QString failureMessage = QString().append(u"TEST FAILED!\n\n"_s)
-                                          .append(u"REQUIRE("_s)
+        QString failureMessage = QString().append(u"REQUIRE("_s)
                                           .append(exprAsString).append(u") failed at file://"_s)
                                           .append(sourceFile).append(':').append(QString::number(sourceLine))
                                           .append('.');
-        qFatal() << failureMessage << Qt::endl;;
+        ScenarioRunner::incrementUnsuccessfulRequireCounter(failureMessage);
     }
 }
 

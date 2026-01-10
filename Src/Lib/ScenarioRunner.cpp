@@ -25,6 +25,7 @@
 //
 
 #include "ScenarioRunner.h"
+#include "SpectatorException.h"
 #include "Generator.h"
 #include "NoDestroy.h"
 #include <QtLogging>
@@ -123,17 +124,23 @@ ScenarioRunner & ScenarioRunner::current()
         qFatal("Failed to fetch current scenario runner. No scenario runner has been set for this thread.");
 }
 
-bool ScenarioRunner::hasCurrent()
-{
-    return m_pCurrentRunner != nullptr;
-}
-
 void ScenarioRunner::incrementSuccessfulRequireCounter()
 {
     if (hasCurrent())
-        ++m_pCurrentRunner->m_successfullRequireCounter;
+        ++m_pCurrentRunner->m_successfulRequireCounter;
     else
         ++globalSuccessfulRequireCounter();
+}
+
+void ScenarioRunner::incrementUnsuccessfulRequireCounter(QString failureMessage)
+{
+    if (hasCurrent())
+    {
+        ++m_pCurrentRunner->m_unsuccessfulRequireCounter;
+        throw SpectatorException(failureMessage);
+    }
+    else
+        qFatal() << failureMessage << Qt::endl;
 }
 
 void ScenarioRunner::addInfoMessage(QString message)
@@ -152,19 +159,19 @@ void ScenarioRunner::addInfoMessage(QString message)
     }
 }
 
-ScenarioRunResults ScenarioRunner::runScenario()
+ScenarioRunResults ScenarioRunner::runScenario(const Scenario & scenario)
 {
+    ScenarioRunner scenarioRunner(scenario);
     if (m_pCurrentRunner != nullptr) [[unlikely]]
         qFatal("Failed to set current scenario runner. There is another scenario being ran on this thread and only one scenario can be run at a time per thread.");
     else [[likely]]
-        m_pCurrentRunner = this;
-    reset();
+        m_pCurrentRunner = &scenarioRunner;
     do
     {
-        runScenarioPath();
-    } while (!hasVisitedAllLeafNodes());
+        scenarioRunner.runScenarioPath();
+    } while (!scenarioRunner.hasVisitedAllLeafNodes());
     m_pCurrentRunner = nullptr;
-    return m_scenarioRunResults;
+    return scenarioRunner.m_scenarioRunResults;
 }
 
 void ScenarioRunner::runScenarioPath()
@@ -172,41 +179,39 @@ void ScenarioRunner::runScenarioPath()
     QElapsedTimer elapsedTimer;
     elapsedTimer.start();
     qsizetype runCount = 0;
-    m_successfullRequireCounter = 0;
+    m_successfulRequireCounter = 0;
+    m_state = State::HeadingForLeaf;
     do
     {
         ++runCount;
+        m_idxNextGenerator = 0;
         m_isValidatingGeneratorStack = !m_generatorsStack.isEmpty();
         try
         {
             m_scenario.scenarioFunction()();
         }
-        catch(const std::exception &ex)
+        catch (const SpectatorException &ex)
         {
-            QString failureMessage = QString().append(u"TEST FAILED!\n\n"_s)
-                                              .append(u"Scenario: "_s)
-                                              .append(m_scenario.scenarioName())
-                                              .append(u" located at file://"_s)
-                                              .append(m_scenario.sourceFile()).append(':')
-                                              .append(QString::number(m_scenario.sourceLine())).append('.')
-                                              .append(u"\nHas thrown an unhandled std::exception with message: "_s)
-                                              .append(QString::fromUtf8(ex.what()));
-            qFatal() << failureMessage << Qt::endl;
+            m_failureMessage = ex.message();
         }
-        catch(...)
+        catch (const std::exception &ex)
         {
-            QString failureMessage = QString().append(u"TEST FAILED!\n\n"_s)
-                                              .append(u"Scenario: "_s)
-                                              .append(m_scenario.scenarioName())
-                                              .append(u" located at file://"_s)
-                                              .append(m_scenario.sourceFile()).append(':')
-                                              .append(QString::number(m_scenario.sourceLine())).append('.')
-                                              .append(u"\nHas thrown an unhandled non-standard exception."_s);
-            qFatal() << failureMessage << Qt::endl;
+            m_failureMessage = QString().append(u"\nTest code has thrown an unhandled std::exception with message: "_s)
+                                        .append(QString::fromUtf8(ex.what()));
+        }
+        catch (...)
+        {
+            m_failureMessage = QString().append(u"\nTest code has thrown an unhandled non-standard exception."_s);
         }
     } while (!hasConsumedAllGeneratorDataOnCurrentPath());
     const auto elapsedTimeInNSecs = elapsedTimer.nsecsElapsed();
-    m_scenarioRunResults.addScenarioPath(m_pathToLeafSection, m_infoMessages, m_successfullRequireCounter, runCount, elapsedTimeInNSecs);
+    m_scenarioRunResults.addScenarioPath(m_pathToLeafSection,
+                                         m_infoMessages,
+                                         m_failureMessage,
+                                         m_successfulRequireCounter,
+                                         m_unsuccessfulRequireCounter,
+                                         runCount,
+                                         elapsedTimeInNSecs);
 }
 
 void ScenarioRunner::tryToAdvanceGeneratorsOnCurrentPath()

@@ -42,7 +42,9 @@ struct ScenarioPathRun
 {
     QStack<Section const *> pathToLeafSection;
     QMap<Section const *, QSet<QString>> infoMessages;
-    qsizetype successfullRequireCount = 0;
+    QString fatalMessage;
+    qsizetype successfulRequireCount = 0;
+    qsizetype unsuccessfulRequireCount = 0;
     qsizetype runCount = 0;
     qint64 elapsedTimeInNSecs = 0;
 };
@@ -54,7 +56,9 @@ public:
     ~ScenarioRunResults() = default;
     void addScenarioPath(QStack<Section const *> pathToLeafSection,
                          QMap<Section const *, QSet<QString>> infoMessages,
-                         qsizetype successfullRequireCount,
+                         QString fatalMessage,
+                         qsizetype successfulRequireCount,
+                         qsizetype unsuccessfulRequireCount,
                          qsizetype runCount,
                          qint64 elapsedTimeInNSecs);
 
