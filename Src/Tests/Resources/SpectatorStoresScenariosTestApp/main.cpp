@@ -22,7 +22,7 @@ int main(int argc, char ** argv)
         const auto & scenario = scenarioRepository[i];
         dataStream << QString(scenario.sourceFile());
         dataStream << scenario.sourceLine();
-        dataStream << QString(scenario.scenarioName());
+        dataStream << QString(scenario.name());
     }
     QTextStream outputStream(stdout);
     outputStream << buffer.toBase64();

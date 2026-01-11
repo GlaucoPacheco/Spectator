@@ -31,9 +31,7 @@ namespace Spectator
 {
 
 Scenario::Scenario(QStringView sourceFile, qint32 sourceLine, QStringView scenarioName, F f) :
-    m_sourceFile(sourceFile),
-    m_sourceLine(sourceLine),
-    m_scenarioName(scenarioName),
+    Section(sourceFile, sourceLine, scenarioName),
     m_scenarioFunction(f)
 {
     ScenarioRepository::global().addScenario(this);

@@ -27,6 +27,7 @@
 #ifndef SPECTATOR_SCENARIO_H
 #define SPECTATOR_SCENARIO_H
 
+#include "Section.h"
 #include "MacroHelpers.h"
 #include <QStringView>
 #include <QtTypes>
@@ -36,22 +37,16 @@
 namespace Spectator
 {
 
-class Scenario
+class Scenario : public Section
 {
     Q_DISABLE_COPY_MOVE(Scenario)
 public:
     using F = void(*)();
     Scenario(QStringView sourceFile, qint32 sourceLine, QStringView scenarioName, F f);
     ~Scenario() = default;
-    inline QStringView sourceFile() const {return m_sourceFile;}
-    inline qint32 sourceLine() const {return m_sourceLine;}
-    inline QStringView scenarioName() const {return m_scenarioName;}
     inline std::function<void()> scenarioFunction() const {return m_scenarioFunction;}
 
 private:
-    const QStringView m_sourceFile;
-    const qint32 m_sourceLine;
-    const QStringView m_scenarioName;
     const std::function<void()> m_scenarioFunction;
 };
 

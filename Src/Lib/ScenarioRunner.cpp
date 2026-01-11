@@ -70,6 +70,7 @@ ScenarioRunner::ScenarioRunner(const Scenario & scenario) :
     m_scenario(scenario)
 {
     m_sectionsStack.reserve(16);
+    m_sectionsStack.push(&scenario);
     m_generatorsStack.reserve(8);
 }
 
@@ -213,15 +214,18 @@ void ScenarioRunner::runScenarioPath()
         catch (const SpectatorException &ex)
         {
             m_failureMessage = ex.message();
+            break;
         }
         catch (const std::exception &ex)
         {
             m_failureMessage = QString().append(u"\nTest code has thrown an unhandled std::exception with message: "_s)
                                         .append(QString::fromUtf8(ex.what()));
+            break;
         }
         catch (...)
         {
             m_failureMessage = QString().append(u"\nTest code has thrown an unhandled non-standard exception."_s);
+            break;
         }
     } while (!hasConsumedAllGeneratorDataOnCurrentPath());
     const auto elapsedTimeInNSecs = elapsedTimer.nsecsElapsed();

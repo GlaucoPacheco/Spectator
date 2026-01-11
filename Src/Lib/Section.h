@@ -40,6 +40,9 @@ class Section
 public:
     Section(QStringView sourceFile, qint32 sourceLine, QStringView sectionName);
     ~Section() = default;
+    inline QStringView sourceFile() const {return m_sourceFile;}
+    inline qint32 sourceLine() const {return m_sourceLine;}
+    inline QStringView name() const {return m_sectionName;}
 
 private:
     const QStringView m_sourceFile;
