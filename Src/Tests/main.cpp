@@ -11,6 +11,7 @@
 #include <QDataStream>
 #include <QByteArray>
 #include <QStringList>
+#include <QByteArrayList>
 #include <QSet>
 #include <QTextStream>
 #include <QFileInfo>
@@ -209,6 +210,22 @@ void spectatorSupportsInfoMessagesOutsideScenarioScope()
         if (output.isEmpty())
             qFatal().noquote() << "INFO logging outside scenario scope test failed: " << testApp.readAllStandardError() << Qt::endl;
         else
-            qInfo().noquote() << output;
+        {
+            const auto expectedMessagesInOutput = QByteArrayList()
+                << "Buffer Contents: Global Scope"
+                << "Assertions: 0"
+                << ((option == u"IN_CONSTRUCTOR"_s) ? "INFO: This is the info message in constructor." : "INFO: This is the info message in destructor.");
+            for (const auto & expectedMessage : expectedMessagesInOutput)
+            {
+                if (!output.contains(expectedMessage))
+                {
+                    qFatal().noquote() << "INFO logging outside scenario scope test failed: "
+                                       << "Expected message \"" << expectedMessage << "\" was not found in process output."
+                                       << Qt::endl << "Process output: " << output
+                                       << Qt::endl;
+                }
+            }
+        }
     }
+    qStdOut() << u"PASSED Testing INFO messages outside scenario scope."_s << Qt::endl;
 }

@@ -60,7 +60,14 @@ static QMutex & globalInfoMessagesLock()
 static QSet<QString> * globalInfoMessages()
 {
     static NoDestroy<QSet<QString>*> pInstance{new QSet<QString>};
-    static NoDestroyPtrDeleter<QSet<QString>*> instanceDeleter(pInstance);
+    constexpr auto cleanupFcn = [](QSet<QString> * pMessages)
+        {
+            assert(pMessages);
+            QTextStream outputStream(stdout);
+            for (const auto & message : *pMessages)
+                outputStream << u"INFO: "_s << message << Qt::endl;
+        };
+    static NoDestroyPtrDeleter<QSet<QString>*> instanceDeleter(pInstance, cleanupFcn);
     return pInstance();
 }
 
@@ -151,7 +158,7 @@ void ScenarioRunner::incrementUnsuccessfulRequireCounter(QString failureMessage)
         qFatal() << failureMessage << Qt::endl;
 }
 
-void ScenarioRunner::addInfoMessage(QString message)
+void ScenarioRunner::recordInfoMessage(QString message)
 {
     if (hasCurrent())
         m_pCurrentRunner->m_infoMessages[m_pCurrentRunner->m_sectionsStack.top()].insert(message);
@@ -162,7 +169,7 @@ void ScenarioRunner::addInfoMessage(QString message)
         if (pInfoMessages)
             pInfoMessages->insert(message);
         else
-            qInfo() << u"INFO: "_s << message << Qt::endl;
+            QTextStream(stdout) << u"INFO: "_s << message << Qt::endl;
     }
 }
 
@@ -191,6 +198,7 @@ void ScenarioRunner::printGlobalStats(QString & buffer)
     {
         for (const auto & message : *pGlobalInfoMessages)
             outputStream << u"INFO: "_s << message << Qt::endl;
+        pGlobalInfoMessages->clear();
     }
     outputStream << u"Assertions: "_s << globalSuccessfulRequireCounter() << Qt::endl;
 }

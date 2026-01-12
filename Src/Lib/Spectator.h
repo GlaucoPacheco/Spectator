@@ -43,7 +43,7 @@
         return QCoreApplication::exec(); \
     }
 
-#define INFO(MSG) ::Spectator::ScenarioRunner::addInfoMessage(MSG)
+#define INFO(MSG) ::Spectator::ScenarioRunner::recordInfoMessage(MSG)
 #define FAIL(MSG) throw ::Spectator::SpectatorException(MSG, __FILE__, __LINE__)
 
 #endif // SPECTATOR_H

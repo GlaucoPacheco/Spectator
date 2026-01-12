@@ -29,6 +29,7 @@
 
 #include <utility>
 #include <type_traits>
+#include <functional>
 
 namespace Spectator
 {
@@ -51,12 +52,20 @@ template <class T>
 class NoDestroyPtrDeleter
 {
     static_assert(std::is_pointer_v<T>);
+    using T_CleanupFcn = void(T);
 public:
     NoDestroyPtrDeleter(NoDestroy<T> &var) : m_var(var) {}
+    NoDestroyPtrDeleter(NoDestroy<T> &var, T_CleanupFcn cleanupFcn) :
+        m_var(var),
+        m_cleanupFcn(cleanupFcn)
+    {
+    }
     ~NoDestroyPtrDeleter()
     {
         if (m_var())
         {
+            if (m_cleanupFcn)
+                m_cleanupFcn(m_var());
             delete m_var();
             m_var() = nullptr;
         }
@@ -64,6 +73,7 @@ public:
 
 private:
     NoDestroy<T> &m_var;
+    std::function<void(T)> m_cleanupFcn;
 };
 
 template <class T>

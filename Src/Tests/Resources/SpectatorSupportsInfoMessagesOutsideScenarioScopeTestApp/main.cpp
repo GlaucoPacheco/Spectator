@@ -46,8 +46,7 @@ int main(int argc, char ** argv)
         QString buffer;
         buffer.reserve(128);
         Spectator::ScenarioRunner::printGlobalStats(buffer);
-        QTextStream outputStream(stdout);
-        outputStream << u"Buffer Contents: "_s << buffer;
+        QTextStream(stdout) << u"Buffer Contents: "_s << buffer;
     }
     return 0;
 }

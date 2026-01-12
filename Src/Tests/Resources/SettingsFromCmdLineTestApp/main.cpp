@@ -19,7 +19,6 @@ int main(int argc, char ** argv)
     dataStream << settings.filePathFilter();
     dataStream << settings.scenarioNameFilter();
     dataStream << settings.scenarioTagsFilter();
-    QTextStream outputStream(stdout);
-    outputStream << buffer.toBase64();
+    QTextStream(stdout) << buffer.toBase64();
     return 0;
 }

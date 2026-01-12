@@ -24,7 +24,6 @@ int main(int argc, char ** argv)
         dataStream << scenario.sourceLine();
         dataStream << QString(scenario.name());
     }
-    QTextStream outputStream(stdout);
-    outputStream << buffer.toBase64();
+    QTextStream(stdout) << buffer.toBase64();
     return 0;
 }

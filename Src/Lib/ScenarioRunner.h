@@ -55,7 +55,7 @@ public:
     static ScenarioRunner & current();
     static void incrementSuccessfulRequireCounter();
     static void incrementUnsuccessfulRequireCounter(QString failureMessage);
-    static void addInfoMessage(QString message);
+    static void recordInfoMessage(QString message);
     static ScenarioRunResults runScenario(const Scenario & scenario);
     static void printGlobalStats(QString &buffer);
 
