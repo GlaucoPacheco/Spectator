@@ -4,6 +4,7 @@
 #include <QList>
 #include <QString>
 #include <QProcess>
+#include <QProcessEnvironment>
 #include <QDir>
 #include <QtLogging>
 #include <QDebug>
@@ -13,6 +14,7 @@
 #include <QSet>
 #include <QTextStream>
 #include <QFileInfo>
+#include <Qt>
 #include <cstdio>
 
 using namespace Qt::StringLiterals;
@@ -25,6 +27,7 @@ static QTextStream & qStdOut()
 
 static void spectatorFetchesSettingsFromCmdLine();
 static void spectatorStoresScenarios();
+static void spectatorSupportsInfoMessagesOutsideScenarioScope();
 
 int main(int argc, char **argv)
 {
@@ -32,6 +35,7 @@ int main(int argc, char **argv)
     qStdOut() << u"Running Tests"_s << Qt::endl;
     spectatorFetchesSettingsFromCmdLine();
     spectatorStoresScenarios();
+    spectatorSupportsInfoMessagesOutsideScenarioScope();
     return 0;
 }
 
@@ -181,4 +185,30 @@ static void spectatorStoresScenarios()
             qFatal("Spectator failed to store scenario data.");
     }
     qStdOut() << u"PASSED Testing Scenario Storing."_s << Qt::endl;
+}
+
+void spectatorSupportsInfoMessagesOutsideScenarioScope()
+{
+    qStdOut() << u"Testing INFO messages outside scenario scope."_s << Qt::endl;
+    // Run test app
+    const auto options = QStringList() << u"IN_CONSTRUCTOR"_s << u"IN_DESTRUCTOR"_s;
+    for (const auto & option : options)
+    {
+        QProcess testApp;
+        QProcessEnvironment processEnvironment = QProcessEnvironment::systemEnvironment();
+        processEnvironment.insert(u"INFO_LOCATION"_s, option);
+        testApp.setProcessEnvironment(processEnvironment);
+        auto testsAppDir = QDir(QCoreApplication::applicationDirPath());
+        auto resourceTestAppFilePath = testsAppDir.absoluteFilePath("Resources/SpectatorSupportsInfoMessagesOutsideScenarioScopeTestApp/SpectatorSupportsInfoMessagesOutsideScenarioScopeTestApp");
+        testApp.start(resourceTestAppFilePath);
+        if (!testApp.waitForStarted(5000))
+            qFatal("%s%s%s", "Failed to wait for ", qUtf8Printable(resourceTestAppFilePath), " test app to start.");
+        if (!testApp.waitForFinished(5000))
+            qFatal("%s%s%s", "Failed to wait for ", qUtf8Printable(resourceTestAppFilePath), " test app to finish.");
+        const auto output = testApp.readAllStandardOutput();
+        if (output.isEmpty())
+            qFatal().noquote() << "INFO logging outside scenario scope test failed: " << testApp.readAllStandardError() << Qt::endl;
+        else
+            qInfo().noquote() << output;
+    }
 }

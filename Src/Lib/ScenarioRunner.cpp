@@ -53,7 +53,7 @@ static std::atomic<qsizetype> & globalSuccessfulRequireCounter()
 
 static QMutex & globalInfoMessagesLock()
 {
-    NoDestroy<QMutex> lock;
+    static NoDestroy<QMutex> lock;
     return lock();
 }
 

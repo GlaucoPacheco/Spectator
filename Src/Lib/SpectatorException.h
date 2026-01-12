@@ -29,6 +29,8 @@
 
 #include "SpectatorGlobals.h"
 #include <QString>
+#include <QStringView>
+#include <QtTypes>
 
 namespace Spectator
 {
@@ -37,6 +39,12 @@ class SPECTATOR_LIB_EXPORT SpectatorException
 {
 public:
     SpectatorException(QString message) : m_message(message) {}
+    SpectatorException(QString message, QStringView sourceFile, qint32 sourceLine) :
+        m_message(QString(message).append(u" thrown at file://")
+                                  .append(sourceFile).append(':')
+                                  .append(QString::number(sourceLine).append('.')))
+    {
+    }
     ~SpectatorException() = default;
     QString message() const noexcept {return m_message;}
 

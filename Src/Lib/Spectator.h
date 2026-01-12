@@ -29,7 +29,9 @@
 
 #include "Require.h"
 #include "Scenario.h"
+#include "ScenarioRunner.h"
 #include "ScenariosRunner.h"
+#include "SpectatorException.h"
 #include <QCoreApplication>
 
 #define SPECTATOR_MAIN \
@@ -40,5 +42,8 @@
         scenariosRunner.runScenarios(); \
         return QCoreApplication::exec(); \
     }
+
+#define INFO(MSG) ::Spectator::ScenarioRunner::addInfoMessage(MSG)
+#define FAIL(MSG) throw ::Spectator::SpectatorException(MSG, __FILE__, __LINE__)
 
 #endif // SPECTATOR_H
