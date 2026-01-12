@@ -6,6 +6,8 @@ qt_add_library(SpectatorObjs OBJECT
     Generator.cpp
     Generator.h
     MacroHelpers.h
+    MessageLogger.cpp
+    MessageLogger.h
     NoDestroy.h
     Require.cpp
     Require.h
