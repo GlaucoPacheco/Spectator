@@ -29,6 +29,7 @@ static QTextStream & qStdOut()
 static void spectatorFetchesSettingsFromCmdLine();
 static void spectatorStoresScenarios();
 static void spectatorSupportsInfoMessagesOutsideScenarioScope();
+static void spectatorSupportsRequireOutsideScenarioScope();
 
 int main(int argc, char **argv)
 {
@@ -37,6 +38,7 @@ int main(int argc, char **argv)
     spectatorFetchesSettingsFromCmdLine();
     spectatorStoresScenarios();
     spectatorSupportsInfoMessagesOutsideScenarioScope();
+    spectatorSupportsRequireOutsideScenarioScope();
     return 0;
 }
 
@@ -228,4 +230,69 @@ void spectatorSupportsInfoMessagesOutsideScenarioScope()
         }
     }
     qStdOut() << u"PASSED Testing INFO messages outside scenario scope."_s << Qt::endl;
+}
+
+void spectatorSupportsRequireOutsideScenarioScope()
+{
+    qStdOut() << u"Testing REQUIRE outside scenario scope."_s << Qt::endl;
+    // Run test app
+    const auto options = QStringList() << u"SUCCEED_IN_CONSTRUCTOR"_s
+                                       << u"FAIL_IN_CONSTRUCTOR"_s
+                                       << u"SUCCEED_IN_DESTRUCTOR"_s
+                                       << u"FAIL_IN_DESTRUCTOR"_s;
+    for (const auto & option : options)
+    {
+        QProcess testApp;
+        QProcessEnvironment processEnvironment = QProcessEnvironment::systemEnvironment();
+        processEnvironment.insert(u"REQUIRE_TYPE"_s, option);
+        testApp.setProcessEnvironment(processEnvironment);
+        auto testsAppDir = QDir(QCoreApplication::applicationDirPath());
+        auto resourceTestAppFilePath = testsAppDir.absoluteFilePath("Resources/SpectatorSupportsRequireOutsideScenarioScopeTestApp/SpectatorSupportsRequireOutsideScenarioScopeTestApp");
+        testApp.start(resourceTestAppFilePath);
+        if (!testApp.waitForStarted(5000))
+            qFatal("%s%s%s", "Failed to wait for ", qUtf8Printable(resourceTestAppFilePath), " test app to start.");
+        if (!testApp.waitForFinished(5000))
+            qFatal("%s%s%s", "Failed to wait for ", qUtf8Printable(resourceTestAppFilePath), " test app to finish.");
+        const QFileInfo thisFileInfo(__FILE__);
+        QDir scenariosDir(thisFileInfo.canonicalPath());
+        if (!scenariosDir.cd(u"Resources"_s) || !scenariosDir.cd(u"SpectatorSupportsRequireOutsideScenarioScopeTestApp"_s))
+            qFatal("Failed to navigate to directory containing scenario source files.");
+        const auto mainFilePath = scenariosDir.absoluteFilePath(u"main.cpp"_s);
+        QByteArrayList expectedMessages;
+        if (option == u"SUCCEED_IN_CONSTRUCTOR"_s)
+        {
+            expectedMessages = QByteArrayList() << "Global Scope" << "Assertions: 1";
+        }
+        else if (option == u"FAIL_IN_CONSTRUCTOR"_s)
+        {
+            expectedMessages = QByteArrayList() << QByteArray("REQUIRE(false) failed at file://").append(mainFilePath.toUtf8()).append(":24.");
+        }
+        else if (option == u"SUCCEED_IN_DESTRUCTOR"_s)
+        {
+            expectedMessages = QByteArrayList() << "Global Scope" << "Assertions: 0";
+        }
+        else if (option == u"FAIL_IN_DESTRUCTOR"_s)
+        {
+            expectedMessages = QByteArrayList() << "Global Scope" << "Assertions: 0" << QByteArray("REQUIRE(false) failed at file://").append(mainFilePath.toUtf8()).append(":36.");
+        }
+        else
+            qFatal().noquote() << "Require outside scenario scope test failed: Invalid option value of: " << option << Qt::endl;
+        const auto output = testApp.readAllStandardOutput() + testApp.readAllStandardError();
+        if (output.isEmpty())
+            QTextStream(stdout) << "Require outside scenario scope test failed: test app did not generate neither of standard/error output." << Qt::endl;
+        else
+        {
+            for (const auto & expectedMessage : expectedMessages)
+            {
+                if (!output.contains(expectedMessage))
+                {
+                    qFatal().noquote() << "REQUIRE outside scenario scope test failed: "
+                                       << "Expected message \"" << expectedMessage << "\" was not found in process output."
+                                       << Qt::endl << "Process output: " << output
+                                       << Qt::endl;
+                }
+            }
+        }
+    }
+    qStdOut() << u"PASSED Testing Require outside scenario scope."_s << Qt::endl;
 }

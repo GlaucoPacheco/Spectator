@@ -5,3 +5,4 @@
 add_subdirectory(SettingsFromCmdLineTestApp)
 add_subdirectory(SpectatorStoresScenariosTestApp)
 add_subdirectory(SpectatorSupportsInfoMessagesOutsideScenarioScopeTestApp)
+add_subdirectory(SpectatorSupportsRequireOutsideScenarioScopeTestApp)

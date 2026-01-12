@@ -9,7 +9,8 @@ find_package(Qt6 COMPONENTS Core Concurrent REQUIRED)
 add_dependencies(Tests 
     SettingsFromCmdLineTestApp
     SpectatorStoresScenariosTestApp
-    SpectatorSupportsInfoMessagesOutsideScenarioScopeTestApp)
+    SpectatorSupportsInfoMessagesOutsideScenarioScopeTestApp
+    SpectatorSupportsRequireOutsideScenarioScopeTestApp)
 target_link_libraries(Tests
     PRIVATE
     Spectator
