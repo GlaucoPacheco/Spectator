@@ -102,7 +102,7 @@ bool ScenarioRunner::tryPushSection(Section const * const pSection)
 
 void ScenarioRunner::popSection(Section const * const pSection)
 {
-    assert(m_sectionsStack.front() == pSection);
+    assert(m_sectionsStack.top() == pSection);
     if (m_state == State::HeadingForLeaf)
     {
         m_state = State::HeadingForRoot;
@@ -113,7 +113,7 @@ void ScenarioRunner::popSection(Section const * const pSection)
     if (!m_currentPathHasUnvisitedChildren)
         m_sectionsWithFullyVisitedChildren.insert(pSection);
     m_sectionsStack.pop();
-    m_hasVisitedAllLeafNodes = m_sectionsStack.isEmpty()
+    m_hasVisitedAllLeafNodes = m_sectionsStack.size() == 1
                                && hasConsumedAllGeneratorDataOnCurrentPath()
                                && !m_currentPathHasUnvisitedChildren;
 }

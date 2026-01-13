@@ -30,15 +30,17 @@ static void spectatorFetchesSettingsFromCmdLine();
 static void spectatorStoresScenarios();
 static void spectatorSupportsInfoMessagesOutsideScenarioScope();
 static void spectatorSupportsRequireOutsideScenarioScope();
+static void spectatorVisitsAllLeafNodesOfScenarioPathWithoutGeneratorsOnce();
 
 int main(int argc, char **argv)
 {
     QCoreApplication app(argc, argv);
     qStdOut() << u"Running Tests"_s << Qt::endl;
-    spectatorFetchesSettingsFromCmdLine();
-    spectatorStoresScenarios();
-    spectatorSupportsInfoMessagesOutsideScenarioScope();
-    spectatorSupportsRequireOutsideScenarioScope();
+    // spectatorFetchesSettingsFromCmdLine();
+    // spectatorStoresScenarios();
+    // spectatorSupportsInfoMessagesOutsideScenarioScope();
+    // spectatorSupportsRequireOutsideScenarioScope();
+    spectatorVisitsAllLeafNodesOfScenarioPathWithoutGeneratorsOnce();
     return 0;
 }
 
@@ -190,7 +192,7 @@ static void spectatorStoresScenarios()
     qStdOut() << u"PASSED Testing Scenario Storing."_s << Qt::endl;
 }
 
-void spectatorSupportsInfoMessagesOutsideScenarioScope()
+static void spectatorSupportsInfoMessagesOutsideScenarioScope()
 {
     qStdOut() << u"Testing INFO messages outside scenario scope."_s << Qt::endl;
     // Run test app
@@ -232,7 +234,7 @@ void spectatorSupportsInfoMessagesOutsideScenarioScope()
     qStdOut() << u"PASSED Testing INFO messages outside scenario scope."_s << Qt::endl;
 }
 
-void spectatorSupportsRequireOutsideScenarioScope()
+static void spectatorSupportsRequireOutsideScenarioScope()
 {
     qStdOut() << u"Testing REQUIRE outside scenario scope."_s << Qt::endl;
     // Run test app
@@ -295,4 +297,22 @@ void spectatorSupportsRequireOutsideScenarioScope()
         }
     }
     qStdOut() << u"PASSED Testing Require outside scenario scope."_s << Qt::endl;
+}
+
+static void spectatorVisitsAllLeafNodesOfScenarioPathWithoutGeneratorsOnce()
+{
+    qStdOut() << u"Testing Spectator Visits All Leaf Nodes Of Scenario Path Without Generators Once."_s << Qt::endl;
+    // Run test app
+    QProcess testApp;
+    auto testsAppDir = QDir(QCoreApplication::applicationDirPath());
+    auto resourceTestAppFilePath = testsAppDir.absoluteFilePath("Resources/SpectatorVisitsAllLeafNodesOfScenarioPathWithoutGeneratorsOnceTestApp/SpectatorVisitsAllLeafNodesOfScenarioPathWithoutGeneratorsOnceTestApp");
+    testApp.start(resourceTestAppFilePath);
+    if (!testApp.waitForFinished(5000))
+        qFatal("%s%s%s", "Failed to wait for ", qUtf8Printable(resourceTestAppFilePath), " test app to finish.");
+    if (testApp.exitCode() != 0 || testApp.exitStatus() != QProcess::NormalExit)
+    {
+        qStdOut() << "Process Failed:" << Qt::endl << testApp.readAllStandardError() << Qt::endl;
+        qFatal("Testing Spectator Visits All Leaf Nodes Of Scenario Path Without Generators Once failed.");
+    }
+    qStdOut() << u"PASSED Testing Spectator Visits All Leaf Nodes Of Scenario Path Without Generators Once."_s << Qt::endl;
 }

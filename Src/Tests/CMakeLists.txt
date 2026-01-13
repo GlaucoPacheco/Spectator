@@ -10,7 +10,8 @@ add_dependencies(Tests
     SettingsFromCmdLineTestApp
     SpectatorStoresScenariosTestApp
     SpectatorSupportsInfoMessagesOutsideScenarioScopeTestApp
-    SpectatorSupportsRequireOutsideScenarioScopeTestApp)
+    SpectatorSupportsRequireOutsideScenarioScopeTestApp
+    SpectatorVisitsAllLeafNodesOfScenarioPathWithoutGeneratorsOnceTestApp)
 target_link_libraries(Tests
     PRIVATE
     Spectator
