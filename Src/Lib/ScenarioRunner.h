@@ -79,7 +79,7 @@ private:
     qsizetype m_idxNextGenerator = 0;
     bool m_isValidatingGeneratorStack = false;
     QSet<Section const *> m_sectionsWithFullyVisitedChildren;
-    bool m_currentPathHasUnvisitedChildren = false;
+    bool m_scenarioHasUnvisitedChildren = false;
     bool m_hasVisitedAllLeafNodes = false;
     qsizetype m_successfulRequireCounter = 0;
     qsizetype m_unsuccessfulRequireCounter = 0;

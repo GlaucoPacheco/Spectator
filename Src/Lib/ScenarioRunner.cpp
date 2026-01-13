@@ -77,7 +77,6 @@ ScenarioRunner::ScenarioRunner(const Scenario & scenario) :
     m_scenario(scenario)
 {
     m_sectionsStack.reserve(16);
-    m_sectionsStack.push(&scenario);
     m_generatorsStack.reserve(8);
 }
 
@@ -94,8 +93,8 @@ bool ScenarioRunner::tryPushSection(Section const * const pSection)
                 return true;
             }
         case State::HeadingForRoot:
-            m_currentPathHasUnvisitedChildren = m_currentPathHasUnvisitedChildren
-                                                || !m_sectionsWithFullyVisitedChildren.contains(pSection);
+            m_scenarioHasUnvisitedChildren = m_scenarioHasUnvisitedChildren
+                                             || !m_sectionsWithFullyVisitedChildren.contains(pSection);
             return false;
     }
 }
@@ -108,14 +107,13 @@ void ScenarioRunner::popSection(Section const * const pSection)
         m_state = State::HeadingForRoot;
         tryToAdvanceGeneratorsOnCurrentPath();
         m_pathToLeafSection = m_sectionsStack;
-        m_currentPathHasUnvisitedChildren = !hasConsumedAllGeneratorDataOnCurrentPath();
+        m_scenarioHasUnvisitedChildren = !hasConsumedAllGeneratorDataOnCurrentPath();
     }
-    if (!m_currentPathHasUnvisitedChildren)
+    if (!m_scenarioHasUnvisitedChildren)
         m_sectionsWithFullyVisitedChildren.insert(pSection);
     m_sectionsStack.pop();
-    m_hasVisitedAllLeafNodes = m_sectionsStack.size() == 1
-                               && hasConsumedAllGeneratorDataOnCurrentPath()
-                               && !m_currentPathHasUnvisitedChildren;
+    m_hasVisitedAllLeafNodes = m_sectionsStack.isEmpty()
+                               && !m_scenarioHasUnvisitedChildren;
 }
 
 qsizetype ScenarioRunner::getGeneratorIndex(Generator const * const generator)
@@ -217,7 +215,12 @@ void ScenarioRunner::runScenarioPath()
         m_isValidatingGeneratorStack = !m_generatorsStack.isEmpty();
         try
         {
+            if (!tryPushSection(&m_scenario))
+                qFatal().noquote() << "Failed to push scenario section named "
+                                   << m_scenario.name()
+                                   << "." << Qt::endl << "This is unexpected an is an internal error of Spectator.";
             m_scenario.scenarioFunction()();
+            popSection(&m_scenario);
         }
         catch (const SpectatorException &ex)
         {

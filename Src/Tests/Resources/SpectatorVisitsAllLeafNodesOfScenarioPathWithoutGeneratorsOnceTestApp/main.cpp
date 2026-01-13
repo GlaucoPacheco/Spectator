@@ -4,6 +4,10 @@
 #include <Spectator.h>
 #include <QCoreApplication>
 #include <QtLogging>
+#include <QByteArray>
+#include <QDataStream>
+#include <QTextStream>
+#include <cstdio>
 
 using namespace Spectator;
 using namespace Spectator::Test;
@@ -21,5 +25,10 @@ int main(int argc, char ** argv)
     recordedEntries = SectionEntryRecorder::global().recordedEntries();
     if (recordedEntries.isEmpty())
         qFatal("Recorded entries is expected to be non-empty.");
+    QByteArray buffer;
+    buffer.reserve(1024);
+    QDataStream dataStream(&buffer, QIODeviceBase::WriteOnly);
+    dataStream << SectionEntryRecorder::global().recordedEntries();
+    QTextStream(stdout) << buffer.toBase64();
     return 0;
 }

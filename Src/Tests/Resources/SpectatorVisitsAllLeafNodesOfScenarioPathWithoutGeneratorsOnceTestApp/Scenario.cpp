@@ -7,6 +7,8 @@ using Spectator::Test::SectionEntryRecorder;
 
 SCENARIO("Scenario")
 {
+    SectionEntryRecorder::global().recordEntry(u"Scenario"_s);
+
     GIVEN("1")
     {
         SectionEntryRecorder::global().recordEntry(u"1"_s);
@@ -35,21 +37,21 @@ SCENARIO("Scenario")
                 SectionEntryRecorder::global().recordEntry(u"1.2.1"_s);
             }
 
-            THEN("1.2.3")
+            THEN("1.2.2")
             {
-                SectionEntryRecorder::global().recordEntry(u"1.2.3"_s);
+                SectionEntryRecorder::global().recordEntry(u"1.2.2"_s);
 
-                AND_WHEN("1.2.3.1")
+                AND_WHEN("1.2.2.1")
                 {
-                    SectionEntryRecorder::global().recordEntry(u"1.2.3.1"_s);
+                    SectionEntryRecorder::global().recordEntry(u"1.2.2.1"_s);
 
-                    THEN("1.2.3.1.1")
+                    THEN("1.2.2.1.1")
                     {
-                        SectionEntryRecorder::global().recordEntry(u"1.2.3.1.1"_s);
+                        SectionEntryRecorder::global().recordEntry(u"1.2.2.1.1"_s);
 
-                        AND_THEN("1.2.3.1.1.1")
+                        AND_THEN("1.2.2.1.1.1")
                         {
-                            SectionEntryRecorder::global().recordEntry(u"1.2.3.1.1.1"_s);
+                            SectionEntryRecorder::global().recordEntry(u"1.2.2.1.1.1"_s);
                         }
                     }
                 }
