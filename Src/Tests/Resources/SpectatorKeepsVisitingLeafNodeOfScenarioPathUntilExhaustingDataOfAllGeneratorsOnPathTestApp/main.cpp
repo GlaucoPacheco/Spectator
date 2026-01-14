@@ -1,5 +1,6 @@
 #include "ScenarioRepository.h"
-#include "SectionEntryRecorder.h"
+#include "../SectionEntryRecorder.h"
+#include "../GeneratorDataRecorder.h"
 #include "ScenarioRunner.h"
 #include <Spectator.h>
 #include <QCoreApplication>
@@ -29,6 +30,7 @@ int main(int argc, char ** argv)
     buffer.reserve(1024);
     QDataStream dataStream(&buffer, QIODeviceBase::WriteOnly);
     dataStream << SectionEntryRecorder::global().recordedEntries();
+    dataStream << GeneratorDataRecorder::global().recordedData();
     QTextStream(stdout) << buffer.toBase64();
     return 0;
 }

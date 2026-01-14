@@ -1,11 +1,14 @@
 #include <Spectator.h>
 #include "Generator.h"
-#include "SectionEntryRecorder.h"
+#include "../SectionEntryRecorder.h"
+#include "../GeneratorDataRecorder.h"
 #include <QString>
 #include <QByteArray>
 #include <cstdint>
 
 using namespace Qt::StringLiterals;
+using Spectator::Test::GeneratorData;
+using Spectator::Test::GeneratorDataRecorder;
 using Spectator::Test::SectionEntryRecorder;
 
 SCENARIO("Scenario")
@@ -27,7 +30,7 @@ SCENARIO("Scenario")
             {
                 SectionEntryRecorder::global().recordEntry(u"1.1.1"_s);
                 const auto then1_1_1Data = GENERATE(AS(QByteArray), "First Data", "Second Data");
-                SectionEntryRecorder::global().recordData(Data{.string=scenarioData, .intValue = given1Data, .int64Value = when1_1Data, .byteArray = then1_1_1Data});
+                GeneratorDataRecorder::global().recordData(GeneratorData{.string=scenarioData, .intValue = given1Data, .int64Value = when1_1Data, .byteArray = then1_1_1Data});
             }
 
             THEN("1.1.2")

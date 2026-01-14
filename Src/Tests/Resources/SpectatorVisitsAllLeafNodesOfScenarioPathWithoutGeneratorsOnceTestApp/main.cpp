@@ -1,5 +1,5 @@
 #include "ScenarioRepository.h"
-#include "SectionEntryRecorder.h"
+#include "../SectionEntryRecorder.h"
 #include "ScenarioRunner.h"
 #include <Spectator.h>
 #include <QCoreApplication>

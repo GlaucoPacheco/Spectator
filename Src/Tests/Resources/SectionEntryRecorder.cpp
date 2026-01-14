@@ -25,7 +25,7 @@
 //
 
 #include "SectionEntryRecorder.h"
-#include "NoDestroy.h"
+#include <NoDestroy.h>
 #include <QtLogging>
 
 namespace Spectator::Test

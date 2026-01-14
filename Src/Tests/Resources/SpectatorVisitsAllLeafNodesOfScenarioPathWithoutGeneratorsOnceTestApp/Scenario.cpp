@@ -1,5 +1,5 @@
 #include <Spectator.h>
-#include "SectionEntryRecorder.h"
+#include "../SectionEntryRecorder.h"
 #include <QString>
 
 using namespace Qt::StringLiterals;

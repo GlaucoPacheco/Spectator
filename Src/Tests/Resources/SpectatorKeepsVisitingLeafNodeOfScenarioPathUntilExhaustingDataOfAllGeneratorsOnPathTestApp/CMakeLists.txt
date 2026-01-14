@@ -4,10 +4,12 @@
 #
 qt_add_executable(SpectatorKeepsVisitingLeafNodeOfScenarioPathUntilExhaustingDataOfAllGeneratorsOnPathTestApp)
 target_sources(SpectatorKeepsVisitingLeafNodeOfScenarioPathUntilExhaustingDataOfAllGeneratorsOnPathTestApp PRIVATE
+    ../GeneratorDataRecorder.cpp
+    ../GeneratorDataRecorder.h
     main.cpp
     Scenario.cpp
-    SectionEntryRecorder.cpp
-    SectionEntryRecorder.h)
+    ../SectionEntryRecorder.cpp
+    ../SectionEntryRecorder.h)
 find_package(Qt6 COMPONENTS Core Concurrent REQUIRED)
 target_include_directories(SpectatorKeepsVisitingLeafNodeOfScenarioPathUntilExhaustingDataOfAllGeneratorsOnPathTestApp PRIVATE ../../../Lib/)
 target_link_libraries(SpectatorKeepsVisitingLeafNodeOfScenarioPathUntilExhaustingDataOfAllGeneratorsOnPathTestApp

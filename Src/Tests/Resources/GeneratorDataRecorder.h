@@ -24,47 +24,64 @@
 // Copyright (C) 2025 Glauco Pacheco <glaucopacheco@gmail.com>
 //
 
-#ifndef SPECTATOR_SECTION_ENTRY_RECORDER_H
-#define SPECTATOR_SECTION_ENTRY_RECORDER_H
+#ifndef SPECTATOR_GENERATOR_DATA_RECORDER_H
+#define SPECTATOR_GENERATOR_DATA_RECORDER_H
 
-#include <QMap>
 #include <QString>
 #include <QtTypes>
 #include <QtClassHelperMacros>
 #include <QByteArray>
+#include <QDataStream>
 #include <QList>
 #include <cstdint>
 
-struct Data
+namespace Spectator::Test
+{
+
+struct GeneratorData
 {
     QString string;
     int intValue = 0;
     int64_t int64Value = 0;
     QByteArray byteArray;
+
+    friend inline QDataStream &operator<<(QDataStream &stream, const GeneratorData &data)
+    {
+        stream << data.string;
+        stream << data.intValue;
+        stream << qint64(data.int64Value);
+        stream << data.byteArray;
+        return stream;
+    }
+
+    friend inline QDataStream &operator>>(QDataStream &stream, GeneratorData & data)
+    {
+        stream >> data.string;
+        stream >> data.intValue;
+        qint64 val = 0;
+        stream >> val;
+        data.int64Value = val;
+        stream >> data.byteArray;
+        return stream;
+    }
 };
 
-namespace Spectator::Test
+class GeneratorDataRecorder
 {
-
-class SectionEntryRecorder
-{
-    Q_DISABLE_COPY_MOVE(SectionEntryRecorder)
+    Q_DISABLE_COPY_MOVE(GeneratorDataRecorder)
 public:
-    ~SectionEntryRecorder() = default;
-    static SectionEntryRecorder & global();
-    inline void recordEntry(QString sectionName) {++m_entryRecords[sectionName];}
-    inline void recordData(const Data & data) {m_recordedData.append(data);}
-    inline QMap<QString, qint64> recordedEntries() const {return m_entryRecords;}
-    inline QList<Data> recordedData() const {return m_recordedData;}
+    ~GeneratorDataRecorder() = default;
+    static GeneratorDataRecorder & global();
+    inline void recordData(const GeneratorData & data) {m_recordedData.append(data);}
+    inline QList<GeneratorData> recordedData() const {return m_recordedData;}
 
 private:
-    SectionEntryRecorder() = default;
+    GeneratorDataRecorder() = default;
 
 private:
-    QMap<QString, qint64> m_entryRecords;
-    QList<Data> m_recordedData;
+    QList<GeneratorData> m_recordedData;
 };
 
 }
 
-#endif // SPECTATOR_SECTION_ENTRY_RECORDER_H
+#endif // SPECTATOR_GENERATOR_DATA_RECORDER_H

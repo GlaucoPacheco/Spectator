@@ -6,8 +6,8 @@ qt_add_executable(SpectatorVisitsAllLeafNodesOfScenarioPathWithoutGeneratorsOnce
 target_sources(SpectatorVisitsAllLeafNodesOfScenarioPathWithoutGeneratorsOnceTestApp PRIVATE
     main.cpp
     Scenario.cpp
-    SectionEntryRecorder.cpp
-    SectionEntryRecorder.h)
+    ../SectionEntryRecorder.cpp
+    ../SectionEntryRecorder.h)
 find_package(Qt6 COMPONENTS Core Concurrent REQUIRED)
 target_include_directories(SpectatorVisitsAllLeafNodesOfScenarioPathWithoutGeneratorsOnceTestApp PRIVATE ../../../Lib/)
 target_link_libraries(SpectatorVisitsAllLeafNodesOfScenarioPathWithoutGeneratorsOnceTestApp

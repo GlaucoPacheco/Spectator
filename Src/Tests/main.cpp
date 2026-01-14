@@ -1,3 +1,4 @@
+#include "Resources/GeneratorDataRecorder.h"
 #include <QCoreApplication>
 #include <QtLogging>
 #include <QThread>
@@ -21,6 +22,7 @@
 #include <cstdio>
 
 using namespace Qt::StringLiterals;
+using Spectator::Test::GeneratorData;
 
 static QTextStream & qStdOut()
 {
