@@ -380,25 +380,25 @@ static void spectatorKeepsVisitingLeafNodeOfScenarioPathUntilExhaustingDataOfAll
     QDataStream dataStream(buffer);
     QMap<QString, qint64> results;
     dataStream >> results;
-    const auto expectedResults = QMap<QString, qint64>({{u"Scenario"_s, 5},
-                                                        {u"1"_s, 4},
-                                                        {u"1.1"_s, 2},
-                                                        {u"1.1.1"_s, 1},
-                                                        {u"1.1.2"_s, 1},
-                                                        {u"1.2"_s, 2},
-                                                        {u"1.2.1"_s, 1},
-                                                        {u"1.2.2"_s, 1},
-                                                        {u"1.2.2.1"_s, 1},
-                                                        {u"1.2.2.1.1"_s, 1},
-                                                        {u"1.2.2.1.1.1"_s, 1},
-                                                        {u"a"_s, 1},
-                                                        {u"a.1"_s, 1},
-                                                        {u"a.2"_s, 1},
-                                                        {u"a.3"_s, 1},
-                                                        {u"a.4"_s, 1},
-                                                        {u"a.5"_s, 1},
-                                                        {u"a.6"_s, 1},
-                                                        {u"a.7"_s, 1}});
+    const auto expectedResults = QMap<QString, qint64>({{u"Scenario"_s, 86},
+                                                        {u"1"_s, 84},
+                                                        {u"1.1"_s, 72},
+                                                        {u"1.1.1"_s, 48},
+                                                        {u"1.1.2"_s, 24},
+                                                        {u"1.2"_s, 12},
+                                                        {u"1.2.1"_s, 6},
+                                                        {u"1.2.2"_s, 6},
+                                                        {u"1.2.2.1"_s, 6},
+                                                        {u"1.2.2.1.1"_s, 6},
+                                                        {u"1.2.2.1.1.1"_s, 6},
+                                                        {u"a"_s, 2},
+                                                        {u"a.1"_s, 2},
+                                                        {u"a.2"_s, 2},
+                                                        {u"a.3"_s, 2},
+                                                        {u"a.4"_s, 2},
+                                                        {u"a.5"_s, 2},
+                                                        {u"a.6"_s, 2},
+                                                        {u"a.7"_s, 2}});
     if (results != expectedResults)
     {
         qFatal() << "FAILED Spectator Keeps Visiting Leaf Node Of Scenario Path Until Exhausting Data Of All Generators On Path!"

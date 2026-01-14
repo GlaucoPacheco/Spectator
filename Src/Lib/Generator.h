@@ -93,7 +93,7 @@ private:
 #define GENERATE_RANGE_WITH_STEP(TypeHolder, MIN_VAL, MAX_VAL, STEP_VAL) \
     []() -> GET_TYPE TypeHolder { \
         static_assert(std::numeric_limits<GET_TYPE TypeHolder>::is_integer && MAX_VAL > MIN_VAL && STEP_VAL > 0); \
-        static ::Spectator::Generator generator((MAX_VAL - MIN_VAL + 1)/STEP_VAL, _SPECTATOR_TO_UTF_16_STRING_LITERAL(__FILE__), __LINE__); \
+        static ::Spectator::Generator generator((MAX_VAL - MIN_VAL)/STEP_VAL + 1, _SPECTATOR_TO_UTF_16_STRING_LITERAL(__FILE__), __LINE__); \
         return generator.currentRangeValue<GET_TYPE TypeHolder>(MIN_VAL, MAX_VAL, STEP_VAL); \
     }()
 
