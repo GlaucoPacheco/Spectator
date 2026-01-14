@@ -11,7 +11,8 @@ add_dependencies(Tests
     SpectatorStoresScenariosTestApp
     SpectatorSupportsInfoMessagesOutsideScenarioScopeTestApp
     SpectatorSupportsRequireOutsideScenarioScopeTestApp
-    SpectatorVisitsAllLeafNodesOfScenarioPathWithoutGeneratorsOnceTestApp)
+    SpectatorVisitsAllLeafNodesOfScenarioPathWithoutGeneratorsOnceTestApp
+    SpectatorKeepsVisitingLeafNodeOfScenarioPathUntilExhaustingDataOfAllGeneratorsOnPathTestApp)
 target_link_libraries(Tests
     PRIVATE
     Spectator

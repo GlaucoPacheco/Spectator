@@ -28,6 +28,7 @@
 #define SPECTATOR_H
 
 #include "MacroHelpers.h"
+#include "Generator.h"
 #include "Require.h"
 #include "Scenario.h"
 #include "ScenarioRunner.h"

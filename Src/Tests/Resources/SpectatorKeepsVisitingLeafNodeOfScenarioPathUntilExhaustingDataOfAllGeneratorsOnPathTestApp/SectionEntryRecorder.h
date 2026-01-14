@@ -31,6 +31,17 @@
 #include <QString>
 #include <QtTypes>
 #include <QtClassHelperMacros>
+#include <QByteArray>
+#include <QList>
+#include <cstdint>
+
+struct Data
+{
+    QString string;
+    int intValue = 0;
+    int64_t int64Value = 0;
+    QByteArray byteArray;
+};
 
 namespace Spectator::Test
 {
@@ -42,13 +53,16 @@ public:
     ~SectionEntryRecorder() = default;
     static SectionEntryRecorder & global();
     inline void recordEntry(QString sectionName) {++m_entryRecords[sectionName];}
+    inline void recordData(const Data & data) {m_recordedData.append(data);}
     inline QMap<QString, qint64> recordedEntries() const {return m_entryRecords;}
+    inline QList<Data> recordedData() const {return m_recordedData;}
 
 private:
     SectionEntryRecorder() = default;
 
 private:
     QMap<QString, qint64> m_entryRecords;
+    QList<Data> m_recordedData;
 };
 
 }

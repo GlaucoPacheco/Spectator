@@ -207,10 +207,10 @@ void ScenarioRunner::runScenarioPath()
     elapsedTimer.start();
     qsizetype runCount = 0;
     m_successfulRequireCounter = 0;
-    m_state = State::HeadingForLeaf;
     do
     {
         ++runCount;
+        m_state = State::HeadingForLeaf;
         m_idxNextGenerator = 0;
         m_isValidatingGeneratorStack = !m_generatorsStack.isEmpty();
         try
@@ -218,7 +218,7 @@ void ScenarioRunner::runScenarioPath()
             if (!tryPushSection(&m_scenario))
                 qFatal().noquote() << "Failed to push scenario section named "
                                    << m_scenario.name()
-                                   << "." << Qt::endl << "This is unexpected an is an internal error of Spectator.";
+                                   << "." << Qt::endl << "This is unexpected and is an internal error of Spectator.";
             m_scenario.scenarioFunction()();
             popSection(&m_scenario);
         }

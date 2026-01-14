@@ -33,16 +33,18 @@ static void spectatorStoresScenarios();
 static void spectatorSupportsInfoMessagesOutsideScenarioScope();
 static void spectatorSupportsRequireOutsideScenarioScope();
 static void spectatorVisitsAllLeafNodesOfScenarioPathWithoutGeneratorsOnce();
+static void spectatorKeepsVisitingLeafNodeOfScenarioPathUntilExhaustingDataOfAllGeneratorsOnPath();
 
 int main(int argc, char **argv)
 {
     QCoreApplication app(argc, argv);
     qStdOut() << u"Running Tests"_s << Qt::endl;
-    spectatorFetchesSettingsFromCmdLine();
-    spectatorStoresScenarios();
-    spectatorSupportsInfoMessagesOutsideScenarioScope();
-    spectatorSupportsRequireOutsideScenarioScope();
-    spectatorVisitsAllLeafNodesOfScenarioPathWithoutGeneratorsOnce();
+    // spectatorFetchesSettingsFromCmdLine();
+    // spectatorStoresScenarios();
+    // spectatorSupportsInfoMessagesOutsideScenarioScope();
+    // spectatorSupportsRequireOutsideScenarioScope();
+    // spectatorVisitsAllLeafNodesOfScenarioPathWithoutGeneratorsOnce();
+    spectatorKeepsVisitingLeafNodeOfScenarioPathUntilExhaustingDataOfAllGeneratorsOnPath();
     return 0;
 }
 
@@ -352,4 +354,57 @@ static void spectatorVisitsAllLeafNodesOfScenarioPathWithoutGeneratorsOnce()
                  << Qt::endl;
     }
     qStdOut() << u"PASSED Testing Spectator Visits All Leaf Nodes Of Scenario Path Without Generators Once."_s << Qt::endl;
+}
+
+static void spectatorKeepsVisitingLeafNodeOfScenarioPathUntilExhaustingDataOfAllGeneratorsOnPath()
+{
+    qStdOut() << u"Testing Spectator Keeps Visiting Leaf Node Of Scenario Path Until Exhausting Data Of All Generators On Path."_s << Qt::endl;
+    // Run test app
+    QProcess testApp;
+    auto testsAppDir = QDir(QCoreApplication::applicationDirPath());
+    auto resourceTestAppFilePath = testsAppDir.absoluteFilePath("Resources/SpectatorKeepsVisitingLeafNodeOfScenarioPathUntilExhaustingDataOfAllGeneratorsOnPathTestApp/SpectatorKeepsVisitingLeafNodeOfScenarioPathUntilExhaustingDataOfAllGeneratorsOnPathTestApp");
+    testApp.start(resourceTestAppFilePath);
+    if (!testApp.waitForFinished(5000))
+        qFatal("%s%s%s", "Failed to wait for ", qUtf8Printable(resourceTestAppFilePath), " test app to finish.");
+    if (testApp.exitCode() != 0 || testApp.exitStatus() != QProcess::NormalExit)
+    {
+        qFatal().noquote() << "FAILED Spectator Keeps Visiting Leaf Node Of Scenario Path Until Exhausting Data Of All Generators On Path!"
+                           << Qt::endl
+                           << "Standard error: "
+                           << Qt::endl
+                           << testApp.readAllStandardError()
+                           << Qt::endl;
+    }
+    const auto output = testApp.readAllStandardOutput();
+    const auto buffer = QByteArray::fromBase64(output);
+    QDataStream dataStream(buffer);
+    QMap<QString, qint64> results;
+    dataStream >> results;
+    const auto expectedResults = QMap<QString, qint64>({{u"Scenario"_s, 5},
+                                                        {u"1"_s, 4},
+                                                        {u"1.1"_s, 2},
+                                                        {u"1.1.1"_s, 1},
+                                                        {u"1.1.2"_s, 1},
+                                                        {u"1.2"_s, 2},
+                                                        {u"1.2.1"_s, 1},
+                                                        {u"1.2.2"_s, 1},
+                                                        {u"1.2.2.1"_s, 1},
+                                                        {u"1.2.2.1.1"_s, 1},
+                                                        {u"1.2.2.1.1.1"_s, 1},
+                                                        {u"a"_s, 1},
+                                                        {u"a.1"_s, 1},
+                                                        {u"a.2"_s, 1},
+                                                        {u"a.3"_s, 1},
+                                                        {u"a.4"_s, 1},
+                                                        {u"a.5"_s, 1},
+                                                        {u"a.6"_s, 1},
+                                                        {u"a.7"_s, 1}});
+    if (results != expectedResults)
+    {
+        qFatal() << "FAILED Spectator Keeps Visiting Leaf Node Of Scenario Path Until Exhausting Data Of All Generators On Path!"
+                 << Qt::endl
+                 << "Results did not match expected results."
+                 << Qt::endl;
+    }
+    qStdOut() << u"PASSED Spectator Keeps Visiting Leaf Node Of Scenario Path Until Exhausting Data Of All Generators On Path."_s << Qt::endl;
 }

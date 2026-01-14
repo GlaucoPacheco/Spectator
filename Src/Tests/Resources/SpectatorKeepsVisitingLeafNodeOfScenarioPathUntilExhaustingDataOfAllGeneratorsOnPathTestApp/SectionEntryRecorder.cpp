@@ -24,33 +24,22 @@
 // Copyright (C) 2025 Glauco Pacheco <glaucopacheco@gmail.com>
 //
 
-#ifndef SPECTATOR_SECTION_ENTRY_RECORDER_H
-#define SPECTATOR_SECTION_ENTRY_RECORDER_H
-
-#include <QMap>
-#include <QString>
-#include <QtTypes>
-#include <QtClassHelperMacros>
+#include "SectionEntryRecorder.h"
+#include "NoDestroy.h"
+#include <QtLogging>
 
 namespace Spectator::Test
 {
 
-class SectionEntryRecorder
+SectionEntryRecorder & SectionEntryRecorder::global()
 {
-    Q_DISABLE_COPY_MOVE(SectionEntryRecorder)
-public:
-    ~SectionEntryRecorder() = default;
-    static SectionEntryRecorder & global();
-    inline void recordEntry(QString sectionName) {++m_entryRecords[sectionName];}
-    inline QMap<QString, qint64> recordedEntries() const {return m_entryRecords;}
-
-private:
-    SectionEntryRecorder() = default;
-
-private:
-    QMap<QString, qint64> m_entryRecords;
-};
-
+    static NoDestroy<SectionEntryRecorder*> pInstance(new SectionEntryRecorder);
+    static NoDestroyPtrDeleter<SectionEntryRecorder*> instanceDeleter(pInstance);
+    auto * pGlobal = pInstance();
+    if (pGlobal != nullptr) [[likely]]
+        return *pGlobal;
+    else [[unlikely]]
+        qFatal("Global section entry recorder has already been destroyed.");
 }
 
-#endif // SPECTATOR_SECTION_ENTRY_RECORDER_H
+}

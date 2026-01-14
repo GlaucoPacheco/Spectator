@@ -76,23 +76,25 @@ private:
 }
 
 #define AS(...) (::Spectator::GeneratorTypeHolder<__VA_ARGS__>)
+#define GET_TYPE(...) __VA_ARGS__::Type
 #define GENERATE(TypeHolder, ...) \
-    []() -> const TypeHolder::Type & { \
-        const static TypeHolder::Type data[] = {__VA_ARGS__}; \
-        const static ::Spectator::Generator generator(sizeof(data)/sizeof(TypeHolder::Type), _SPECTATOR_TO_UTF_16_STRING_LITERAL(__FILE__), __LINE__); \
-        return generator.currentValue<TypeHolder::Type>(data); \
+    []() -> const GET_TYPE TypeHolder & { \
+        const static GET_TYPE TypeHolder data[] = {__VA_ARGS__}; \
+        static_assert(sizeof(data)/sizeof(GET_TYPE TypeHolder) > 0); \
+        const static ::Spectator::Generator generator(sizeof(data)/sizeof(GET_TYPE TypeHolder), _SPECTATOR_TO_UTF_16_STRING_LITERAL(__FILE__), __LINE__); \
+        return generator.currentValue<GET_TYPE TypeHolder>(data); \
     }()
 #define GENERATE_RANGE(TypeHolder, MIN_VAL, MAX_VAL) \
-    []() -> TypeHolder::Type { \
-        static_assert(std::numeric_limits<TypeHolder::type>::is_integer && MAX_VAL > MIN_VAL); \
+    []() -> GET_TYPE TypeHolder { \
+        static_assert(std::numeric_limits<GET_TYPE TypeHolder>::is_integer && MAX_VAL > MIN_VAL); \
         static ::Spectator::Generator generator(MAX_VAL - MIN_VAL + 1, _SPECTATOR_TO_UTF_16_STRING_LITERAL(__FILE__), __LINE__); \
-        return generator.currentRangeValue<TypeHolder::Type>(MIN_VAL, MAX_VAL, 1); \
+        return generator.currentRangeValue<GET_TYPE TypeHolder>(MIN_VAL, MAX_VAL, 1); \
     }()
 #define GENERATE_RANGE_WITH_STEP(TypeHolder, MIN_VAL, MAX_VAL, STEP_VAL) \
-    []() -> TypeHolder::Type { \
-        static_assert(std::numeric_limits<TypeHolder::type>::is_integer && MAX_VAL > MIN_VAL && STEP_VAL > 0); \
+    []() -> GET_TYPE TypeHolder { \
+        static_assert(std::numeric_limits<GET_TYPE TypeHolder>::is_integer && MAX_VAL > MIN_VAL && STEP_VAL > 0); \
         static ::Spectator::Generator generator((MAX_VAL - MIN_VAL + 1)/STEP_VAL, _SPECTATOR_TO_UTF_16_STRING_LITERAL(__FILE__), __LINE__); \
-        return generator.currentRangeValue<TypeHolder::Type>(MIN_VAL, MAX_VAL, STEP_VAL); \
+        return generator.currentRangeValue<GET_TYPE TypeHolder>(MIN_VAL, MAX_VAL, STEP_VAL); \
     }()
 
 #endif // SPECTATOR_GENERATOR_H
