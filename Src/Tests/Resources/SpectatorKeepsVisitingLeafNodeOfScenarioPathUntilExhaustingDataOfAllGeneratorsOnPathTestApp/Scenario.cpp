@@ -109,4 +109,6 @@ SCENARIO("Scenario")
             }
         }
     }
+
+    const auto scenarioEndData = GENERATE(AS(QString), u"a"_s, u"b"_s);
 }

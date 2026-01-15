@@ -64,7 +64,7 @@ private:
     void runScenarioPath();
     void tryToAdvanceGeneratorsOnCurrentPath();
     inline bool hasConsumedAllGeneratorDataOnCurrentPath() const {return m_hasConsumedAllGeneratorDataOnCurrentPath;}
-    inline bool hasVisitedAllLeafNodes() const {return m_hasVisitedAllLeafNodes;}
+    inline bool hasVisitedAllLeafNodes() const {return m_hasVisitedAllLeafNodes && m_untouchedGenerators.isEmpty();}
 
 private:
     static constinit thread_local ScenarioRunner * m_pCurrentRunner;
@@ -78,6 +78,8 @@ private:
     QStack<std::pair<Generator const *, qsizetype>> m_generatorsStack;
     qsizetype m_idxNextGenerator = 0;
     bool m_isValidatingGeneratorStack = false;
+    QSet<Generator const *> m_touchedGenerators;
+    QSet<Generator const *> m_untouchedGenerators;
     QSet<Section const *> m_sectionsWithFullyVisitedChildren;
     bool m_scenarioHasUnvisitedChildren = false;
     bool m_hasVisitedAllLeafNodes = false;

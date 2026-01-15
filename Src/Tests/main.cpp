@@ -382,7 +382,7 @@ static void spectatorKeepsVisitingLeafNodeOfScenarioPathUntilExhaustingDataOfAll
     QDataStream dataStream(buffer);
     QMap<QString, qint64> results;
     dataStream >> results;
-    const auto expectedResults = QMap<QString, qint64>({{u"Scenario"_s, 86},
+    const auto expectedResults = QMap<QString, qint64>({{u"Scenario"_s, 90},
                                                         {u"1"_s, 84},
                                                         {u"1.1"_s, 72},
                                                         {u"1.1.1"_s, 48},

@@ -85,7 +85,8 @@ bool ScenarioRunner::tryPushSection(Section const * const pSection)
     switch (m_state)
     {
         case State::HeadingForLeaf:
-            if (m_sectionsWithFullyVisitedChildren.contains(pSection))
+            if (m_sectionsWithFullyVisitedChildren.contains(pSection)
+                && (pSection != &m_scenario || (m_untouchedGenerators.isEmpty() && hasConsumedAllGeneratorDataOnCurrentPath())))
                 return false;
             else
             {
@@ -118,13 +119,25 @@ void ScenarioRunner::popSection(Section const * const pSection)
 
 qsizetype ScenarioRunner::getGeneratorIndex(Generator const * const generator)
 {
+    switch (m_state)
+    {
+        case State::HeadingForLeaf:
+            if (m_untouchedGenerators.contains(generator))
+                m_untouchedGenerators.remove(generator);
+            m_touchedGenerators.insert(generator);
+            break;
+        case State::HeadingForRoot:
+            if (!m_touchedGenerators.contains(generator))
+                m_untouchedGenerators.insert(generator);
+            return 0;
+    }
     if (!m_isValidatingGeneratorStack)
         m_generatorsStack.push({generator, 0});
     else if (m_idxNextGenerator >= m_generatorsStack.size() || m_generatorsStack[m_idxNextGenerator].first != generator)
     {
-        qFatal() << QString(u"Generators must be declared in the section's outermost scope "
-                             "(the entire section body). Generator at %1:%2 has not."_s)
-                             .arg(generator->sourceFile()).arg(generator->sourceLine());
+        qFatal().noquote() << QString(u"Generators must be declared in the section's outermost scope "
+                                       "(the entire section body). Generator at %1:%2 was not."_s)
+                                       .arg(generator->sourceFile()).arg(generator->sourceLine());
     }
     return m_generatorsStack[m_idxNextGenerator++].second;
 }
