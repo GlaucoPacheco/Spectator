@@ -41,11 +41,11 @@ int main(int argc, char **argv)
 {
     QCoreApplication app(argc, argv);
     qStdOut() << u"Running Tests"_s << Qt::endl;
-    // spectatorFetchesSettingsFromCmdLine();
-    // spectatorStoresScenarios();
-    // spectatorSupportsInfoMessagesOutsideScenarioScope();
-    // spectatorSupportsRequireOutsideScenarioScope();
-    // spectatorVisitsAllLeafNodesOfScenarioPathWithoutGeneratorsOnce();
+    spectatorFetchesSettingsFromCmdLine();
+    spectatorStoresScenarios();
+    spectatorSupportsInfoMessagesOutsideScenarioScope();
+    spectatorSupportsRequireOutsideScenarioScope();
+    spectatorVisitsAllLeafNodesOfScenarioPathWithoutGeneratorsOnce();
     spectatorKeepsVisitingLeafNodeOfScenarioPathUntilExhaustingDataOfAllGeneratorsOnPath();
     return 0;
 }
