@@ -9,7 +9,7 @@
 namespace Spectator
 {
 
-void ScenarioRepository::addScenario(Scenario const * const pScenario)
+void ScenarioRepository::addScenario(Scenario * pScenario)
 {
     assert(pScenario);
     QMutexLocker locker(&m_scenariosLock);
@@ -25,7 +25,7 @@ qsizetype ScenarioRepository::size()
     return m_scenarios.size();
 }
 
-const Scenario & ScenarioRepository::operator[](qsizetype index)
+Scenario & ScenarioRepository::operator[](qsizetype index)
 {
     assert(0 <= index && index < m_scenarios.size());
     QMutexLocker locker(&m_scenariosLock);

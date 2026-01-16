@@ -5,11 +5,11 @@
 #define SPECTATOR_SCENARIO_RUNNER_H
 
 #include "ScenarioRunResults.h"
+#include "SpectatorException.h"
 #include <QStack>
 #include <QSet>
 #include <QMap>
 #include <QString>
-#include <QtClassHelperMacros>
 #include <QtTypes>
 #include <utility>
 
@@ -22,22 +22,29 @@ class Generator;
 
 class ScenarioRunner
 {
-    Q_DISABLE_COPY_MOVE(ScenarioRunner)
 public:
-    ScenarioRunner(Scenario const * pScenario);
+    ScenarioRunner() = default;
+    ScenarioRunner(Scenario * pScenario);
+    ScenarioRunner & operator=(const ScenarioRunner &) = default;
     ~ScenarioRunner() = default;
     bool tryPushSection(Section const * const pSection);
     void popSection(Section const * const pSection);
     qsizetype getGeneratorIndex(Generator const * const generator);
     static ScenarioRunner & current();
-    static void incrementSuccessfulRequireCounter();
-    static void incrementUnsuccessfulRequireCounter(QString failureMessage);
-    static void recordInfoMessage(QString message);
-    static ScenarioRunResults runScenario(const Scenario & scenario);
-    static void printGlobalStats(QString &buffer);
+    inline void incrementSuccessfulRequireCounter() {++m_successfulRequireCounter;}
+    inline void incrementUnsuccessfulRequireCounter(QString failureMessage)
+    {
+        ++m_unsuccessfulRequireCounter;
+        throw SpectatorException(failureMessage);
+    }
+    inline void recordInfoMessage(QString message)
+    {
+        m_infoMessages[m_sectionsStack.top()].insert(message);
+    }
+    static ScenarioRunResults runScenario(Scenario & scenario);
+    inline static bool hasCurrent() {return m_pCurrentRunner != nullptr;}
 
 private:
-    inline static bool hasCurrent() {return m_pCurrentRunner != nullptr;}
     void runScenarioPath();
     void tryToAdvanceGeneratorsOnCurrentPath();
     inline bool hasConsumedAllGeneratorDataOnCurrentPath() const {return m_hasConsumedAllGeneratorDataOnCurrentPath;}
@@ -45,7 +52,7 @@ private:
 
 private:
     static constinit thread_local ScenarioRunner * m_pCurrentRunner;
-    Scenario const * const m_pScenario = nullptr;
+    Scenario * m_pScenario = nullptr;
     enum class State {HeadingForLeaf, HeadingForRoot};
     State m_state = State::HeadingForLeaf;
     ScenarioRunResults m_scenarioRunResults;

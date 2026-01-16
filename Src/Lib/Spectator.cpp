@@ -2,6 +2,57 @@
 // SPDX-License-Identifier: AGPL-3.0-only OR CDDL-1.0
 
 #include "Spectator.h"
+#include "ScenarioRunner.h"
+#include "GlobalScopeData.h"
+#include "SpectatorException.h"
+#include <QtTypes>
+#include <QtLogging>
+#include <QDebug>
+
+using namespace Qt::StringLiterals;
+
+namespace Spectator
+{
+
+void REQUIRE(bool expr, const std::source_location location)
+{
+    if (expr) [[likely]]
+    {
+        if (ScenarioRunner::hasCurrent()) [[likely]]
+            ScenarioRunner::current().incrementSuccessfulRequireCounter();
+        else [[unlikely]]
+            GlobalScopeData::incrementSuccessfulRequireCounter();
+    }
+    else [[unlikely]]
+    {
+        QString failureMessage = QString().append(u"REQUIRE failed at file://"_s)
+                                        .append(QString::fromUtf8(location.file_name()))
+                                        .append(':').append(QString::number(location.line()))
+                                        .append('.');
+        if (ScenarioRunner::hasCurrent()) [[likely]]
+            ScenarioRunner::current().incrementUnsuccessfulRequireCounter(failureMessage);
+        else [[unlikely]]
+            qFatal().noquote() << failureMessage << Qt::endl;
+    }
+}
+
+void INFO(QString message)
+{
+    if (ScenarioRunner::hasCurrent()) [[likely]]
+        ScenarioRunner::current().recordInfoMessage(message);
+    else [[unlikely]]
+        GlobalScopeData::recordInfoMessage(message);
+}
+
+void FAIL(QString message, const std::source_location location)
+{
+    throw SpectatorException(message, QString::fromUtf8(location.file_name()), location.line());
+}
+
+}
+
+/*
+#include "Spectator.h"
 #include <QCoreApplication>
 #include <QTimer>
 #include <QRunnable>
@@ -434,3 +485,4 @@ int main(int argc, char ** argv)
     outputStream.flush();
     return returnValue;
 }
+*/

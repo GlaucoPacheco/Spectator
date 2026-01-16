@@ -3,7 +3,6 @@
 
 #include "Scenario.h"
 #include "ScenarioRunner.h"
-#include "SpectatorException.h"
 #include "Generator.h"
 #include "NoDestroy.h"
 #include <QtLogging>
@@ -23,35 +22,9 @@ using namespace Qt::StringLiterals;
 namespace Spectator
 {
 
-static std::atomic<qsizetype> & globalSuccessfulRequireCounter()
-{
-    static constinit NoDestroy<std::atomic<qsizetype>> counter{0};
-    return counter();
-}
-
-static QMutex & globalInfoMessagesLock()
-{
-    static NoDestroy<QMutex> lock;
-    return lock();
-}
-
-static QSet<QString> * globalInfoMessages()
-{
-    static NoDestroy<QSet<QString>*> pInstance{new QSet<QString>};
-    constexpr auto cleanupFcn = [](QSet<QString> * pMessages)
-        {
-            assert(pMessages);
-            QTextStream outputStream(stdout);
-            for (const auto & message : *pMessages)
-                outputStream << u"INFO: "_s << message << Qt::endl;
-        };
-    static NoDestroyPtrDeleter<QSet<QString>*> instanceDeleter(pInstance, cleanupFcn);
-    return pInstance();
-}
-
 constinit thread_local ScenarioRunner * ScenarioRunner::m_pCurrentRunner = nullptr;
 
-ScenarioRunner::ScenarioRunner(Scenario const * pScenario) :
+ScenarioRunner::ScenarioRunner(Scenario * pScenario) :
     m_pScenario(pScenario)
 {
     if (!m_pScenario) [[unlikely]]
@@ -130,68 +103,19 @@ ScenarioRunner & ScenarioRunner::current()
         qFatal("Failed to fetch current scenario runner. No scenario runner has been set for this thread.");
 }
 
-void ScenarioRunner::incrementSuccessfulRequireCounter()
+ScenarioRunResults ScenarioRunner::runScenario(Scenario & scenario)
 {
-    if (hasCurrent())
-        ++m_pCurrentRunner->m_successfulRequireCounter;
-    else
-        ++globalSuccessfulRequireCounter();
-}
-
-void ScenarioRunner::incrementUnsuccessfulRequireCounter(QString failureMessage)
-{
-    if (hasCurrent())
-    {
-        ++m_pCurrentRunner->m_unsuccessfulRequireCounter;
-        throw SpectatorException(failureMessage);
-    }
-    else
-        qFatal() << failureMessage << Qt::endl;
-}
-
-void ScenarioRunner::recordInfoMessage(QString message)
-{
-    if (hasCurrent())
-        m_pCurrentRunner->m_infoMessages[m_pCurrentRunner->m_sectionsStack.top()].insert(message);
-    else
-    {
-        QMutexLocker locker(&globalInfoMessagesLock());
-        auto * pInfoMessages = globalInfoMessages();
-        if (pInfoMessages)
-            pInfoMessages->insert(message);
-        else
-            QTextStream(stdout) << u"INFO: "_s << message << Qt::endl;
-    }
-}
-
-ScenarioRunResults ScenarioRunner::runScenario(const Scenario & scenario)
-{
-    ScenarioRunner scenarioRunner(&scenario);
+    scenario.m_scenarioRunner = ScenarioRunner(&scenario);
     if (m_pCurrentRunner != nullptr) [[unlikely]]
         qFatal("Failed to set current scenario runner. There is another scenario being ran on this thread and only one scenario can be run at a time per thread.");
     else [[likely]]
-        m_pCurrentRunner = &scenarioRunner;
+        m_pCurrentRunner = &scenario.m_scenarioRunner;
     do
     {
-        scenarioRunner.runScenarioPath();
-    } while (!scenarioRunner.hasVisitedAllLeafNodes());
+        scenario.m_scenarioRunner.runScenarioPath();
+    } while (!scenario.m_scenarioRunner.hasVisitedAllLeafNodes());
     m_pCurrentRunner = nullptr;
-    return scenarioRunner.m_scenarioRunResults;
-}
-
-void ScenarioRunner::printGlobalStats(QString & buffer)
-{
-    QTextStream outputStream(&buffer, QIODeviceBase::WriteOnly);
-    outputStream << u"Global Scope"_s << Qt::endl;
-    QMutexLocker locker(&globalInfoMessagesLock());
-    auto *pGlobalInfoMessages = globalInfoMessages();
-    if (pGlobalInfoMessages) [[likely]]
-    {
-        for (const auto & message : *pGlobalInfoMessages)
-            outputStream << u"INFO: "_s << message << Qt::endl;
-        pGlobalInfoMessages->clear();
-    }
-    outputStream << u"Assertions: "_s << globalSuccessfulRequireCounter() << Qt::endl;
+    return scenario.m_scenarioRunner.m_scenarioRunResults;
 }
 
 void ScenarioRunner::runScenarioPath()
@@ -212,7 +136,7 @@ void ScenarioRunner::runScenarioPath()
                 qFatal().noquote() << "Failed to push scenario section named "
                                    << m_pScenario->name()
                                    << "." << Qt::endl << "This is unexpected and is an internal error of Spectator.";
-            m_pScenario->scenarioFunction()();
+            m_pScenario->___scenarioFunction();
             popSection(m_pScenario);
         }
         catch (const SpectatorException &ex)

@@ -17,9 +17,9 @@ class ScenarioRepository
     Q_DISABLE_COPY_MOVE(ScenarioRepository)
 public:
     ~ScenarioRepository() = default;
-    void addScenario(Scenario const * const pScenario);
+    void addScenario(Scenario * pScenario);
     qsizetype size();
-    const Scenario & operator[](qsizetype index);
+    Scenario & operator[](qsizetype index);
     static ScenarioRepository & global();
 
 private:
@@ -27,7 +27,7 @@ private:
 
 private:
     QMutex m_scenariosLock;
-    QVector<Scenario const *> m_scenarios;
+    QVector<Scenario*> m_scenarios;
 };
 
 }

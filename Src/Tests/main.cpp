@@ -276,7 +276,7 @@ static void spectatorSupportsRequireOutsideScenarioScope()
         }
         else if (option == u"FAIL_IN_CONSTRUCTOR"_s)
         {
-            expectedMessages = QByteArrayList() << QByteArray("REQUIRE(false) failed at file://").append(mainFilePath.toUtf8()).append(":27.");
+            expectedMessages = QByteArrayList() << QByteArray("REQUIRE failed at file://").append(mainFilePath.toUtf8()).append(":27.");
         }
         else if (option == u"SUCCEED_IN_DESTRUCTOR"_s)
         {
@@ -284,7 +284,7 @@ static void spectatorSupportsRequireOutsideScenarioScope()
         }
         else if (option == u"FAIL_IN_DESTRUCTOR"_s)
         {
-            expectedMessages = QByteArrayList() << "Global Scope" << "Assertions: 0" << QByteArray("REQUIRE(false) failed at file://").append(mainFilePath.toUtf8()).append(":39.");
+            expectedMessages = QByteArrayList() << "Global Scope" << "Assertions: 0" << QByteArray("REQUIRE failed at file://").append(mainFilePath.toUtf8()).append(":39.");
         }
         else
             qFatal().noquote() << "Require outside scenario scope test failed: Invalid option value of: " << option << Qt::endl;

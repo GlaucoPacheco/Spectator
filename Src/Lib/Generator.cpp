@@ -14,9 +14,4 @@ Generator::Generator(qsizetype size, QStringView sourceFile, qint32 sourceLine) 
 {
 }
 
-qsizetype Generator::getGeneratorIndex(Generator const * const generator)
-{
-    return ScenarioRunner::current().getGeneratorIndex(generator);
-}
-
 }

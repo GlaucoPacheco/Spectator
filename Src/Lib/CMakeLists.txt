@@ -4,10 +4,10 @@
 qt_add_library(SpectatorObjs OBJECT
     Generator.cpp
     Generator.h
+    GlobalScopeData.cpp
+    GlobalScopeData.h
     MacroHelpers.h
     NoDestroy.h
-    Require.cpp
-    Require.h
     Scenario.cpp
     Scenario.h
     ScenarioRepository.cpp
@@ -24,6 +24,8 @@ qt_add_library(SpectatorObjs OBJECT
     SectionGuard.h
     Settings.cpp
     Settings.h
+    Spectator.cpp
+    Spectator.h
     SpectatorException.h
     SpectatorGlobals.h)
 

@@ -1,7 +1,7 @@
 // Copyright (C) 2026 Glauco Pacheco <glaucopacheco@gmail.com>
 // SPDX-License-Identifier: AGPL-3.0-only OR CDDL-1.0
 
-#include "ScenarioRunner.h"
+#include "GlobalScopeData.h"
 #include <Spectator.h>
 #include <QProcessEnvironment>
 #include <QString>
@@ -57,7 +57,7 @@ int main(int argc, char ** argv)
     {
         QString buffer;
         buffer.reserve(128);
-        Spectator::ScenarioRunner::printGlobalStats(buffer);
+        Spectator::GlobalScopeData::printGlobalStats(buffer);
         QTextStream(stdout) << u"Buffer Contents: "_s << Qt::endl << buffer << Qt::endl;
     }
     return 0;
