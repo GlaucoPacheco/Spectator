@@ -1,7 +1,6 @@
-#
 # Copyright (C) 2026 Glauco Pacheco <glaucopacheco@gmail.com>
-# All rights reserved.
-#
+# SPDX-License-Identifier: BSD-3-Clause
+
 qt_add_executable(SpectatorVisitsAllLeafNodesOfScenarioPathWithoutGeneratorsOnceTestApp)
 target_sources(SpectatorVisitsAllLeafNodesOfScenarioPathWithoutGeneratorsOnceTestApp PRIVATE
     main.cpp
