@@ -188,11 +188,11 @@ static void spectatorStoresScenarios()
     if (!scenariosDir.cd(u"Resources"_s) || !scenariosDir.cd(u"SpectatorStoresScenariosTestApp"_s))
         qFatal("Failed to navigate to directory containing scenario source files.");
     const auto expectedScenariosData = QList<ScenarioData>()
-        << ScenarioData{.sourceFile=scenariosDir.absoluteFilePath(u"scenarios_1.cpp"_s), .sourceLine=3, .scenarioName=u"Scenario: A Scenario"_s}
-        << ScenarioData{.sourceFile=scenariosDir.absoluteFilePath(u"scenarios_1.cpp"_s), .sourceLine=7, .scenarioName=u"Scenario: Another Scenario"_s}
-        << ScenarioData{.sourceFile=scenariosDir.absoluteFilePath(u"scenarios_1.cpp"_s), .sourceLine=11, .scenarioName=u"Scenario: Yet Another Scenario"_s}
-        << ScenarioData{.sourceFile=scenariosDir.absoluteFilePath(u"scenarios_2.cpp"_s), .sourceLine=4, .scenarioName=u"Scenario: Spectator is a really fast test framework"_s}
-        << ScenarioData{.sourceFile=scenariosDir.absoluteFilePath(u"scenarios_3.cpp"_s), .sourceLine=5, .scenarioName=u"Scenario: Kourier is a blazingly fast HTTP server"_s};
+        << ScenarioData{.sourceFile=scenariosDir.absoluteFilePath(u"scenarios_1.cpp"_s), .sourceLine=6, .scenarioName=u"Scenario: A Scenario"_s}
+        << ScenarioData{.sourceFile=scenariosDir.absoluteFilePath(u"scenarios_1.cpp"_s), .sourceLine=10, .scenarioName=u"Scenario: Another Scenario"_s}
+        << ScenarioData{.sourceFile=scenariosDir.absoluteFilePath(u"scenarios_1.cpp"_s), .sourceLine=14, .scenarioName=u"Scenario: Yet Another Scenario"_s}
+        << ScenarioData{.sourceFile=scenariosDir.absoluteFilePath(u"scenarios_2.cpp"_s), .sourceLine=7, .scenarioName=u"Scenario: Spectator is a really fast test framework"_s}
+        << ScenarioData{.sourceFile=scenariosDir.absoluteFilePath(u"scenarios_3.cpp"_s), .sourceLine=8, .scenarioName=u"Scenario: Kourier is a blazingly fast HTTP server"_s};
     for (const auto & expectedScenarioData : expectedScenariosData)
     {
         if (!fetchedScenarios.contains(expectedScenarioData))
@@ -276,7 +276,7 @@ static void spectatorSupportsRequireOutsideScenarioScope()
         }
         else if (option == u"FAIL_IN_CONSTRUCTOR"_s)
         {
-            expectedMessages = QByteArrayList() << QByteArray("REQUIRE(false) failed at file://").append(mainFilePath.toUtf8()).append(":24.");
+            expectedMessages = QByteArrayList() << QByteArray("REQUIRE(false) failed at file://").append(mainFilePath.toUtf8()).append(":27.");
         }
         else if (option == u"SUCCEED_IN_DESTRUCTOR"_s)
         {
@@ -284,7 +284,7 @@ static void spectatorSupportsRequireOutsideScenarioScope()
         }
         else if (option == u"FAIL_IN_DESTRUCTOR"_s)
         {
-            expectedMessages = QByteArrayList() << "Global Scope" << "Assertions: 0" << QByteArray("REQUIRE(false) failed at file://").append(mainFilePath.toUtf8()).append(":36.");
+            expectedMessages = QByteArrayList() << "Global Scope" << "Assertions: 0" << QByteArray("REQUIRE(false) failed at file://").append(mainFilePath.toUtf8()).append(":39.");
         }
         else
             qFatal().noquote() << "Require outside scenario scope test failed: Invalid option value of: " << option << Qt::endl;

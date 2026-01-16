@@ -1,6 +1,7 @@
 // Copyright (C) 2026 Glauco Pacheco <glaucopacheco@gmail.com>
 // SPDX-License-Identifier: AGPL-3.0-only OR CDDL-1.0
 
+#include "Scenario.h"
 #include "ScenarioRunner.h"
 #include "SpectatorException.h"
 #include "Generator.h"
@@ -50,9 +51,11 @@ static QSet<QString> * globalInfoMessages()
 
 constinit thread_local ScenarioRunner * ScenarioRunner::m_pCurrentRunner = nullptr;
 
-ScenarioRunner::ScenarioRunner(const Scenario & scenario) :
-    m_scenario(scenario)
+ScenarioRunner::ScenarioRunner(Scenario const * pScenario) :
+    m_pScenario(pScenario)
 {
+    if (!m_pScenario) [[unlikely]]
+        qFatal("Failed to create scenario runner. Given scenario is null.");
     m_sectionsStack.reserve(16);
     m_generatorsStack.reserve(8);
 }
@@ -63,7 +66,7 @@ bool ScenarioRunner::tryPushSection(Section const * const pSection)
     {
         case State::HeadingForLeaf:
             if (m_sectionsWithFullyVisitedChildren.contains(pSection)
-                && (pSection != &m_scenario || (m_untouchedGenerators.isEmpty() && hasConsumedAllGeneratorDataOnCurrentPath())))
+                && (pSection != m_pScenario || (m_untouchedGenerators.isEmpty() && hasConsumedAllGeneratorDataOnCurrentPath())))
                 return false;
             else
             {
@@ -163,7 +166,7 @@ void ScenarioRunner::recordInfoMessage(QString message)
 
 ScenarioRunResults ScenarioRunner::runScenario(const Scenario & scenario)
 {
-    ScenarioRunner scenarioRunner(scenario);
+    ScenarioRunner scenarioRunner(&scenario);
     if (m_pCurrentRunner != nullptr) [[unlikely]]
         qFatal("Failed to set current scenario runner. There is another scenario being ran on this thread and only one scenario can be run at a time per thread.");
     else [[likely]]
@@ -205,12 +208,12 @@ void ScenarioRunner::runScenarioPath()
         m_isValidatingGeneratorStack = !m_generatorsStack.isEmpty();
         try
         {
-            if (!tryPushSection(&m_scenario))
+            if (!tryPushSection(m_pScenario))
                 qFatal().noquote() << "Failed to push scenario section named "
-                                   << m_scenario.name()
+                                   << m_pScenario->name()
                                    << "." << Qt::endl << "This is unexpected and is an internal error of Spectator.";
-            m_scenario.scenarioFunction()();
-            popSection(&m_scenario);
+            m_pScenario->scenarioFunction()();
+            popSection(m_pScenario);
         }
         catch (const SpectatorException &ex)
         {

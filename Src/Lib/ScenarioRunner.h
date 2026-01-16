@@ -4,7 +4,6 @@
 #ifndef SPECTATOR_SCENARIO_RUNNER_H
 #define SPECTATOR_SCENARIO_RUNNER_H
 
-#include "Scenario.h"
 #include "ScenarioRunResults.h"
 #include <QStack>
 #include <QSet>
@@ -17,6 +16,7 @@
 namespace Spectator
 {
 
+class Scenario;
 class Section;
 class Generator;
 
@@ -24,7 +24,7 @@ class ScenarioRunner
 {
     Q_DISABLE_COPY_MOVE(ScenarioRunner)
 public:
-    ScenarioRunner(const Scenario & scenario);
+    ScenarioRunner(Scenario const * pScenario);
     ~ScenarioRunner() = default;
     bool tryPushSection(Section const * const pSection);
     void popSection(Section const * const pSection);
@@ -45,7 +45,7 @@ private:
 
 private:
     static constinit thread_local ScenarioRunner * m_pCurrentRunner;
-    const Scenario & m_scenario;
+    Scenario const * const m_pScenario = nullptr;
     enum class State {HeadingForLeaf, HeadingForRoot};
     State m_state = State::HeadingForLeaf;
     ScenarioRunResults m_scenarioRunResults;
