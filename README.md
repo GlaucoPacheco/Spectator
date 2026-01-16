@@ -14,3 +14,9 @@ straightforward to read.
 | -r       | Sets how many times the tests must be repeated. |
 | -f  | Sets the source file name to run. Only scenarios belonging to this file are run.   |
 | -s | Sets the scenario to run. Only scenarios matching the given name are run.   |
+
+## License
+
+This work is dual-licensed under AGPL 3.0 only or CDDL 1.0 only.
+
+`SPDX-License-Identifier: AGPL-3.0-only OR CDDL-1.0`
