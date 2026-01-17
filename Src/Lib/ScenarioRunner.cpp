@@ -135,7 +135,7 @@ void ScenarioRunner::runScenarioPath()
                 qFatal().noquote() << "Failed to push scenario section named "
                                    << m_pScenario->name()
                                    << "." << Qt::endl << "This is unexpected and is an internal error of Spectator.";
-            m_pScenario->___scenarioFunction();
+            m_pScenario->scenarioFunction();
             popSection(m_pScenario);
         }
         catch (const SpectatorException &ex)
