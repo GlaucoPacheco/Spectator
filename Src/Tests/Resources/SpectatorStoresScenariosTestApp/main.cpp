@@ -26,6 +26,10 @@ int main(int argc, char ** argv)
         dataStream << QString(scenario.sourceFile());
         dataStream << scenario.sourceLine();
         dataStream << QString(scenario.name());
+        QStringList tags;
+        for (auto i = 0; i < scenario.tagCount(); ++i)
+            tags.append(QString(scenario.tagAt(i)));
+        dataStream << tags;
     }
     QTextStream(stdout) << buffer.toBase64();
     return 0;

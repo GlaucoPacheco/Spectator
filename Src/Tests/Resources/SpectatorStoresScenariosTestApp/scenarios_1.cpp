@@ -14,3 +14,11 @@ SCENARIO("Another Scenario")
 SCENARIO("Yet Another Scenario")
 {
 }
+
+SCENARIO("A Scenario with one tag", TAG("a tag"))
+{
+}
+
+SCENARIO("A Scenario with multiple tags", TAG("tag 1"), TAG("tag 2"), TAG("tag 3"))
+{
+}

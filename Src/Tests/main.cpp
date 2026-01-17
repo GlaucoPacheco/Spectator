@@ -161,18 +161,20 @@ static void spectatorStoresScenarios()
     QDataStream dataStream(buffer);
     qsizetype scenarioCount = 0;
     dataStream >> scenarioCount;
-    if (scenarioCount != 5)
+    if (scenarioCount != 7)
         qFatal("Spectator did not store the correct number of scenarios.");
     struct ScenarioData
     {
         QString sourceFile;
         qint32 sourceLine;
         QString scenarioName;
+        QStringList scenarioTags;
         inline bool operator==(const ScenarioData & other) const
         {
             return sourceFile == other.sourceFile
                    && sourceLine == other.sourceLine
-                   && scenarioName == other.scenarioName;
+                   && scenarioName == other.scenarioName
+                   && scenarioTags == other.scenarioTags;
         }
     };
     QList<ScenarioData> fetchedScenarios;
@@ -182,6 +184,7 @@ static void spectatorStoresScenarios()
         dataStream >> fetchedScenarios.back().sourceFile;
         dataStream >> fetchedScenarios.back().sourceLine;
         dataStream >> fetchedScenarios.back().scenarioName;
+        dataStream >> fetchedScenarios.back().scenarioTags;
     }
     const QFileInfo thisFileInfo(__FILE__);
     QDir scenariosDir(thisFileInfo.canonicalPath());
@@ -191,6 +194,8 @@ static void spectatorStoresScenarios()
         << ScenarioData{.sourceFile=scenariosDir.absoluteFilePath(u"scenarios_1.cpp"_s), .sourceLine=6, .scenarioName=u"Scenario: A Scenario"_s}
         << ScenarioData{.sourceFile=scenariosDir.absoluteFilePath(u"scenarios_1.cpp"_s), .sourceLine=10, .scenarioName=u"Scenario: Another Scenario"_s}
         << ScenarioData{.sourceFile=scenariosDir.absoluteFilePath(u"scenarios_1.cpp"_s), .sourceLine=14, .scenarioName=u"Scenario: Yet Another Scenario"_s}
+        << ScenarioData{.sourceFile=scenariosDir.absoluteFilePath(u"scenarios_1.cpp"_s), .sourceLine=18, .scenarioName=u"Scenario: A Scenario with one tag"_s, .scenarioTags=(QStringList() << u"a tag"_s)}
+        << ScenarioData{.sourceFile=scenariosDir.absoluteFilePath(u"scenarios_1.cpp"_s), .sourceLine=22, .scenarioName=u"Scenario: A Scenario with multiple tags"_s, .scenarioTags=(QStringList() << u"tag 1"_s << u"tag 2"_s << u"tag 3"_s)}
         << ScenarioData{.sourceFile=scenariosDir.absoluteFilePath(u"scenarios_2.cpp"_s), .sourceLine=7, .scenarioName=u"Scenario: Spectator is a really fast test framework"_s}
         << ScenarioData{.sourceFile=scenariosDir.absoluteFilePath(u"scenarios_3.cpp"_s), .sourceLine=8, .scenarioName=u"Scenario: Kourier is a blazingly fast HTTP server"_s};
     for (const auto & expectedScenarioData : expectedScenariosData)
