@@ -103,17 +103,18 @@ ScenarioRunner & ScenarioRunner::current()
 
 ScenarioRunResults ScenarioRunner::runScenario(Scenario & scenario)
 {
-    scenario.m_scenarioRunner = ScenarioRunner(&scenario);
     if (m_pCurrentRunner != nullptr) [[unlikely]]
         qFatal("Failed to set current scenario runner. There is another scenario being ran on this thread and only one scenario can be run at a time per thread.");
-    else [[likely]]
-        m_pCurrentRunner = &scenario.m_scenarioRunner;
+    ScenarioRunner scenarioRunner(&scenario);
+    scenario.m_pScenarioRunner = &scenarioRunner;
+    m_pCurrentRunner = &scenarioRunner;
     do
     {
-        scenario.m_scenarioRunner.runScenarioPath();
-    } while (!scenario.m_scenarioRunner.hasVisitedAllLeafNodes());
+        scenarioRunner.runScenarioPath();
+    } while (!scenarioRunner.hasVisitedAllLeafNodes());
     m_pCurrentRunner = nullptr;
-    return scenario.m_scenarioRunner.m_scenarioRunResults;
+    scenario.m_pScenarioRunner = nullptr;
+    return scenarioRunner.m_scenarioRunResults;
 }
 
 void ScenarioRunner::runScenarioPath()

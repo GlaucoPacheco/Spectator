@@ -29,13 +29,13 @@ public:
     template <class T>
     const T & currentValue(T const * const pData, Scenario * pScenario) const
     {
-        return pData[pScenario->m_scenarioRunner.getGeneratorIndex(this)];
+        return pData[pScenario->scenarioRunner()->getGeneratorIndex(this)];
     }
 
     template <class T>
     T currentRangeValue(T minVal, T maxVal, T stepVal, Scenario * pScenario) const
     {
-        const qsizetype currentIndex = pScenario->m_scenarioRunner.getGeneratorIndex(this);
+        const qsizetype currentIndex = pScenario->scenarioRunner()->getGeneratorIndex(this);
         const auto currentValue = minVal + stepVal * currentIndex;
         return currentValue;
     }

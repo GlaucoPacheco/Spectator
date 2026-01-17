@@ -21,14 +21,14 @@ public:
     SectionGuard(Section const * const section, Scenario * pScenario) :
         m_pSection(section),
         m_pScenario(pScenario),
-        m_hasEntered(m_pScenario->m_scenarioRunner.tryPushSection(m_pSection))
+        m_hasEntered(m_pScenario->scenarioRunner()->tryPushSection(m_pSection))
     {
         assert(m_pSection);
     }
     ~SectionGuard()
     {
         if (m_hasEntered)
-            m_pScenario->m_scenarioRunner.popSection(m_pSection);
+            m_pScenario->scenarioRunner()->popSection(m_pSection);
     }
     inline bool hasEntered() const {return m_hasEntered;}
 

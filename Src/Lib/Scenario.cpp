@@ -21,7 +21,7 @@ void Scenario::processFailedRequire(const std::source_location location)
                                           .append(QString::fromUtf8(location.file_name()))
                                           .append(':').append(QString::number(location.line()))
                                           .append('.');
-    m_scenarioRunner.incrementUnsuccessfulRequireCounter(failureMessage);
+    m_pScenarioRunner->incrementUnsuccessfulRequireCounter(failureMessage);
 }
 
 }

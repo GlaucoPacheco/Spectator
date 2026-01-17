@@ -25,11 +25,11 @@ public:
     inline void REQUIRE(bool expr, const std::source_location location = std::source_location::current())
     {
         if (expr) [[likely]]
-            m_scenarioRunner.incrementSuccessfulRequireCounter();
+            m_pScenarioRunner->incrementSuccessfulRequireCounter();
         else [[unlikely]]
             processFailedRequire(location);
     }
-    inline void INFO(QString message) {m_scenarioRunner.recordInfoMessage(message);}
+    inline void INFO(QString message) {m_pScenarioRunner->recordInfoMessage(message);}
     inline void FAIL(QString message, const std::source_location location = std::source_location::current())
     {throw SpectatorException(message, QString::fromUtf8(location.file_name()), location.line());}
 
@@ -37,14 +37,14 @@ protected:
     virtual void ___scenarioFunction() = 0;
 
 private:
-    inline ScenarioRunner & scenarioRunner() {return m_scenarioRunner;}
+    inline ScenarioRunner * scenarioRunner() {return m_pScenarioRunner;}
     void processFailedRequire(const std::source_location location);
 
 private:
     friend class Generator;
     friend class SectionGuard;
     friend class ScenarioRunner;
-    ScenarioRunner m_scenarioRunner;
+    ScenarioRunner * m_pScenarioRunner;
 };
 
 }
