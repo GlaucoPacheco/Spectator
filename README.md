@@ -19,4 +19,4 @@ straightforward to read.
 
 This work is dual-licensed under AGPL 3.0 only or CDDL 1.0 only.
 
-`SPDX-License-Identifier: AGPL-3.0-only OR CDDL-1.0`
+`SPDX-License-Identifier: AGPL-3.0-only OR MPL-2.0-no-copyleft-exception`
