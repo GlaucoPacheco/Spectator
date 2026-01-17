@@ -4,7 +4,6 @@
 #include "Scenario.h"
 #include "ScenarioRunner.h"
 #include "Generator.h"
-#include "NoDestroy.h"
 #include <QtLogging>
 #include <QDebug>
 #include <QElapsedTimer>
@@ -14,7 +13,6 @@
 #include <QMutexLocker>
 #include <Qt>
 #include <QTextStream>
-#include <atomic>
 #include <exception>
 
 using namespace Qt::StringLiterals;
