@@ -27,6 +27,7 @@
 
 #define SECTION(NAME) \
     static const ::Spectator::Section _SPECTATOR_CONCATENATE_(_spectator_section, __LINE__)(_SPECTATOR_TO_UTF_16_STRING_LITERAL(__FILE__), __LINE__, _SPECTATOR_TO_UTF_16_STRING_LITERAL(NAME)); \
+    /* The explicit cast below on the this pointer is permitted per C++20 Standard 11.9.2 (4.4) */ \
     if (::Spectator::SectionGuard _SPECTATOR_CONCATENATE_(_spectator_section_guard, __LINE__)(& _SPECTATOR_CONCATENATE_(_spectator_section, __LINE__), (::Spectator::Scenario*)this); _SPECTATOR_CONCATENATE_(_spectator_section_guard, __LINE__).hasEntered())
 #define GIVEN(NAME) SECTION("Given: " NAME)
 #define WHEN(NAME) SECTION("When: " NAME)
