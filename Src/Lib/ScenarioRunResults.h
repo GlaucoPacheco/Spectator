@@ -30,6 +30,7 @@ class ScenarioRunResults
 {
 public:
     ScenarioRunResults() = default;
+    ScenarioRunResults(const ScenarioRunResults &) = default;
     ~ScenarioRunResults() = default;
     void addScenarioPath(QStack<Section const *> pathToLeafSection,
                          QMap<Section const *, QSet<QString>> infoMessages,
@@ -38,6 +39,7 @@ public:
                          qsizetype unsuccessfulRequireCount,
                          qsizetype runCount,
                          qint64 elapsedTimeInNSecs);
+    inline QMap<Section const *, ScenarioPathRun> scenarioPaths() const {return m_scenarioPaths;}
 
 private:
     QMap<Section const *, ScenarioPathRun> m_scenarioPaths;

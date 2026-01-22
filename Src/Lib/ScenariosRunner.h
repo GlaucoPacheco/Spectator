@@ -5,24 +5,36 @@
 #define SPECTATOR_SCENARIOS_RUNNER_H
 
 #include "Scenario.h"
+#include "ScenarioRunResults.h"
 #include <QtClassHelperMacros>
 #include <QVector>
 #include <QThreadPool>
+#include <QFutureWatcher>
+#include <QObject>
+#include <QtTypes>
+#include <memory>
 
 namespace Spectator
 {
 
-class ScenariosRunner
+class ScenariosRunner : public QObject
 {
+    Q_OBJECT
     Q_DISABLE_COPY_MOVE(ScenariosRunner)
 public:
     ScenariosRunner() = default;
     ~ScenariosRunner() = default;
     void runScenarios();
 
+private slots:
+    void onFinishedRunningScenario();
+
 private:
     QVector<Scenario*> fetchScenarios();
     QThreadPool m_threadPool;
+    QVector<ScenarioRunResults> m_results;
+    QVector<std::shared_ptr<QFutureWatcher<ScenarioRunResults>>> m_scenarioWatchers;
+    qsizetype m_finishedRunningScenariosCounter = 0;
 };
 
 }
