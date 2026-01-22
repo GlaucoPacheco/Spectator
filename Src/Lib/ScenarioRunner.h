@@ -70,7 +70,6 @@ private:
     qsizetype m_successfulRequireCounter = 0;
     qsizetype m_unsuccessfulRequireCounter = 0;
     bool m_hasConsumedAllGeneratorDataOnCurrentPath = false;
-    QString m_failureMessage;
 };
 
 }

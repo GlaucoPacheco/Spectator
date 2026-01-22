@@ -4,7 +4,10 @@
 #ifndef SPECTATOR_SCENARIOS_RUNNER_H
 #define SPECTATOR_SCENARIOS_RUNNER_H
 
+#include "Scenario.h"
 #include <QtClassHelperMacros>
+#include <QVector>
+#include <QThreadPool>
 
 namespace Spectator
 {
@@ -16,6 +19,10 @@ public:
     ScenariosRunner() = default;
     ~ScenariosRunner() = default;
     void runScenarios();
+
+private:
+    QVector<Scenario*> fetchScenarios();
+    QThreadPool m_threadPool;
 };
 
 }

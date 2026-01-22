@@ -20,13 +20,14 @@ public:
     void addScenario(Scenario * pScenario);
     qsizetype size();
     Scenario & operator[](qsizetype index);
+    inline QVector<Scenario*> getAll() {return m_scenarios;}
     static ScenarioRepository & global();
 
 private:
-    ScenarioRepository() = default;
+    ScenarioRepository() {m_scenarios.reserve(1024);}
 
 private:
-    QMutex m_scenariosLock;
+    QMutex m_scenarioAddLock;
     QVector<Scenario*> m_scenarios;
 };
 

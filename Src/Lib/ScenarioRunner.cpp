@@ -123,6 +123,7 @@ void ScenarioRunner::runScenarioPath()
     elapsedTimer.start();
     qsizetype runCount = 0;
     m_successfulRequireCounter = 0;
+    QString failureMessage;
     do
     {
         ++runCount;
@@ -140,25 +141,25 @@ void ScenarioRunner::runScenarioPath()
         }
         catch (const SpectatorException &ex)
         {
-            m_failureMessage = ex.message();
+            failureMessage = ex.message();
             break;
         }
         catch (const std::exception &ex)
         {
-            m_failureMessage = QString().append(u"\nTest code has thrown an unhandled std::exception with message: "_s)
+            failureMessage = QString().append(u"\nTest code has thrown an unhandled std::exception with message: "_s)
                                         .append(QString::fromUtf8(ex.what()));
             break;
         }
         catch (...)
         {
-            m_failureMessage = QString().append(u"\nTest code has thrown an unhandled non-standard exception."_s);
+            failureMessage = QString().append(u"\nTest code has thrown an unhandled non-standard exception."_s);
             break;
         }
     } while (!hasConsumedAllGeneratorDataOnCurrentPath());
     const auto elapsedTimeInNSecs = elapsedTimer.nsecsElapsed();
     m_scenarioRunResults.addScenarioPath(m_pathToLeafSection,
                                          m_infoMessages,
-                                         m_failureMessage,
+                                         failureMessage,
                                          m_successfulRequireCounter,
                                          m_unsuccessfulRequireCounter,
                                          runCount,

@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only OR MPL-2.0-no-copyleft-exception
 
 #include "ScenariosRunner.h"
+#include "ScenarioRepository.h"
 #include <QCoreApplication>
 #include <QtLogging>
 
@@ -12,7 +13,13 @@ void ScenariosRunner::runScenarios()
 {
     auto *pApp = QCoreApplication::instance();
     if (!pApp) [[unlikely]]
-        qFatal("Failed to run scenarios. Current QCoreApplication instance is null. Please, create a QCoreInstance before trying to run the scenarios.");    
+        qFatal("Failed to run scenarios. Current QCoreApplication instance is null. Please, create a QCoreInstance before trying to run the scenarios.");
+    auto scenarios = fetchScenarios();
+}
+
+QVector<Scenario*> ScenariosRunner::fetchScenarios()
+{
+    return ScenarioRepository::global().getAll();
 }
 
 }
