@@ -10,6 +10,8 @@ qt_add_library(SpectatorObjs OBJECT
     NoDestroy.h
     Scenario.cpp
     Scenario.h
+    ScenarioPathRunResults.cpp
+    ScenarioPathRunResults.h
     ScenarioRepository.cpp
     ScenarioRepository.h
     ScenarioRunner.cpp

@@ -15,13 +15,13 @@ void ScenarioRunResults::addScenarioPath(QStack<Section const *> pathToLeafSecti
                                          qint64 elapsedTimeInNSecs)
 {
     auto & scenarioPath = m_scenarioPaths[pathToLeafSection.top()];
-    scenarioPath.pathToLeafSection = pathToLeafSection;
-    scenarioPath.infoMessages = infoMessages;
-    scenarioPath.fatalMessage = fatalMessage;
-    scenarioPath.successfulRequireCount += successfulRequireCount;
-    scenarioPath.unsuccessfulRequireCount += unsuccessfulRequireCount;
-    scenarioPath.runCount += runCount;
-    scenarioPath.elapsedTimeInNSecs += elapsedTimeInNSecs;
+    scenarioPath.pathToLeafSection() = pathToLeafSection;
+    scenarioPath.infoMessages() = infoMessages;
+    scenarioPath.fatalMessage() = fatalMessage;
+    scenarioPath.successfulRequireCount() += successfulRequireCount;
+    scenarioPath.unsuccessfulRequireCount() += unsuccessfulRequireCount;
+    scenarioPath.runCount() += runCount;
+    scenarioPath.elapsedTimeInNSecs() += elapsedTimeInNSecs;
 }
 
 }

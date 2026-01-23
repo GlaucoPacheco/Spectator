@@ -4,27 +4,12 @@
 #ifndef SPECTATOR_SCENARIO_RUN_RESULTS_H
 #define SPECTATOR_SCENARIO_RUN_RESULTS_H
 
-#include <QStack>
-#include <QMap>
-#include <QSet>
-#include <QString>
-#include <QtTypes>
+#include "ScenarioPathRunResults.h"
 
 namespace Spectator
 {
 
 class Section;
-
-struct ScenarioPathRun
-{
-    QStack<Section const *> pathToLeafSection;
-    QMap<Section const *, QSet<QString>> infoMessages;
-    QString fatalMessage;
-    qsizetype successfulRequireCount = 0;
-    qsizetype unsuccessfulRequireCount = 0;
-    qsizetype runCount = 0;
-    qint64 elapsedTimeInNSecs = 0;
-};
 
 class ScenarioRunResults
 {
@@ -39,10 +24,10 @@ public:
                          qsizetype unsuccessfulRequireCount,
                          qsizetype runCount,
                          qint64 elapsedTimeInNSecs);
-    inline QMap<Section const *, ScenarioPathRun> scenarioPaths() const {return m_scenarioPaths;}
+    inline QMap<Section const *, ScenarioPathRunResults> scenarioPaths() const {return m_scenarioPaths;}
 
 private:
-    QMap<Section const *, ScenarioPathRun> m_scenarioPaths;
+    QMap<Section const *, ScenarioPathRunResults> m_scenarioPaths;
 };
 
 }

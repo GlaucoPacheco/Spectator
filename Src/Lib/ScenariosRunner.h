@@ -6,12 +6,14 @@
 
 #include "Scenario.h"
 #include "ScenarioRunResults.h"
+#include "Section.h"
 #include <QtClassHelperMacros>
 #include <QVector>
 #include <QThreadPool>
 #include <QFutureWatcher>
 #include <QObject>
 #include <QtTypes>
+#include <QMap>
 #include <memory>
 
 namespace Spectator
@@ -31,9 +33,13 @@ private slots:
 
 private:
     QVector<Scenario*> fetchScenarios();
+    void processScenariosResults();
+    void printResults();
+
+private:
     QThreadPool m_threadPool;
-    QVector<ScenarioRunResults> m_results;
     QVector<std::shared_ptr<QFutureWatcher<ScenarioRunResults>>> m_scenarioWatchers;
+    QMap<Section const *, ScenarioPathRunResults> m_results;
     qsizetype m_finishedRunningScenariosCounter = 0;
 };
 

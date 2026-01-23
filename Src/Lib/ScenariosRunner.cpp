@@ -12,6 +12,11 @@
 #include <QDeadlineTimer>
 #include <QEventLoop>
 #include <QTimer>
+#include <QMetaObject>
+#include <QTextStream>
+#include <QString>
+#include <Qt>
+#include <cstdio>
 
 namespace Spectator
 {
@@ -50,13 +55,44 @@ void ScenariosRunner::onFinishedRunningScenario()
         m_threadPool.waitForDone(deadline);
         if (deadline.hasExpired())
             qFatal("Failed to wait for the threads of the thread pool responsible for running scenarios to stop.");
-        qFatal("Finished running scenarios.");
+        processScenariosResults();
+        printResults();
+        if (!QMetaObject::invokeMethod(QCoreApplication::instance(), &QCoreApplication::quit, Qt::QueuedConnection))
+            qFatal("Failed schedule call to QCoreApplication::quit.");
     }
 }
 
 QVector<Scenario*> ScenariosRunner::fetchScenarios()
 {
     return ScenarioRepository::global().getAll();
+}
+
+void ScenariosRunner::processScenariosResults()
+{
+    for (auto & watcher : m_scenarioWatchers)
+    {
+        auto scenarioPaths = watcher->result().scenarioPaths();
+        for (auto it = scenarioPaths.cbegin(), end = scenarioPaths.cend(); it != end; ++it)
+        {
+            auto & scenarioPath = m_results[it->pathToLeafSection().top()];
+            scenarioPath.pathToLeafSection() = it->pathToLeafSection();
+            scenarioPath.infoMessages() = it->infoMessages();
+            scenarioPath.fatalMessage() = it->fatalMessage();
+            scenarioPath.successfulRequireCount() += it->successfulRequireCount();
+            scenarioPath.unsuccessfulRequireCount() += it->unsuccessfulRequireCount();
+            scenarioPath.runCount() += it->runCount();
+            scenarioPath.elapsedTimeInNSecs() += it->elapsedTimeInNSecs();
+        }
+    }
+}
+
+void ScenariosRunner::printResults()
+{
+    QString buffer;
+    buffer.reserve(1ul << 20);
+    QTextStream bufferedStream(&buffer, QIODevice::WriteOnly);
+    bufferedStream << "Printing results" << Qt::endl;
+    QTextStream(stdout) << buffer << Qt::endl;
 }
 
 }
