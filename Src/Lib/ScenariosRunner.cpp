@@ -10,6 +10,8 @@
 #include <QtConcurrent>
 #include <QFuture>
 #include <QDeadlineTimer>
+#include <QEventLoop>
+#include <QTimer>
 
 namespace Spectator
 {
@@ -28,7 +30,15 @@ void ScenariosRunner::runScenarios()
         m_scenarioWatchers[i].reset(new QFutureWatcher<ScenarioRunResults>{});
         QObject::connect(m_scenarioWatchers[i].get(), &QFutureWatcher<ScenarioRunResults>::finished, this, &ScenariosRunner::onFinishedRunningScenario, Qt::QueuedConnection);
         auto * pScenario = scenarios[i];
-        m_scenarioWatchers[i]->setFuture(QtConcurrent::run(&m_threadPool, [pScenario](){return ScenarioRunner::runScenario(*pScenario);}));
+        m_scenarioWatchers[i]->setFuture(QtConcurrent::run(&m_threadPool, [pScenario]()
+            {
+                QEventLoop eventLoop;
+                QObject ctxObject;
+                ScenarioRunResults results;
+                QTimer::singleShot(0, &ctxObject, [&results, &eventLoop, pScenario](){results = ScenarioRunner::runScenario(*pScenario); eventLoop.exit();});
+                eventLoop.exec();
+                return results;
+            }));
     }
 }
 
