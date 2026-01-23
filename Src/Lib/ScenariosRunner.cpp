@@ -13,7 +13,6 @@
 #include <QEventLoop>
 #include <QTimer>
 #include <QMetaObject>
-#include <QTextStream>
 #include <QString>
 #include <Qt>
 #include <cstdio>
@@ -78,10 +77,17 @@ void ScenariosRunner::processScenariosResults()
             scenarioPath.pathToLeafSection() = it->pathToLeafSection();
             scenarioPath.infoMessages() = it->infoMessages();
             scenarioPath.fatalMessage() = it->fatalMessage();
+            if (it->fatalMessage().isEmpty()) [[likely]]
+                ++m_successfulScenarioPathRunCounter;
+            else [[unlikely]]
+                ++m_unsuccessfulScenarioPathRunCounter;
             scenarioPath.successfulRequireCount() += it->successfulRequireCount();
+            m_successfulRequireCounter += it->successfulRequireCount();
             scenarioPath.unsuccessfulRequireCount() += it->unsuccessfulRequireCount();
+            m_unsuccessfulRequireCounter += it->unsuccessfulRequireCount();
             scenarioPath.runCount() += it->runCount();
             scenarioPath.elapsedTimeInNSecs() += it->elapsedTimeInNSecs();
+            m_elapsedTimeInNSecs += it->elapsedTimeInNSecs();
         }
     }
 }
@@ -91,8 +97,67 @@ void ScenariosRunner::printResults()
     QString buffer;
     buffer.reserve(1ul << 20);
     QTextStream bufferedStream(&buffer, QIODevice::WriteOnly);
-    bufferedStream << "Printing results" << Qt::endl;
+    printSuccessfullScenariosPaths(bufferedStream);
+    printUnsuccessfullScenariosPaths(bufferedStream);
+    printScenarioPathsStats(bufferedStream);
     QTextStream(stdout) << buffer << Qt::endl;
+}
+
+void ScenariosRunner::printSuccessfullScenariosPaths(QTextStream & stream)
+{
+    if (m_successfulScenarioPathRunCounter == 0) [[unlikely]]
+        return;
+    stream << "\n------------------------------------------\n";
+    stream << "Passed scenario paths\n";
+    stream << "------------------------------------------\n";
+    for (auto it = m_results.cbegin(), end = m_results.cend(); it != end; ++it)
+    {
+        if (it->fatalMessage().isEmpty()) [[likely]]
+        {
+            for (const auto & section : it->pathToLeafSection())
+                stream << section->name() << Qt::endl;
+            stream << "Stats: [Time: " << QString::number(it->elapsedTimeInNSecs()/1000000.0, 'g', 3) << "ms; Run count: " << it->runCount() << "; Require count: " << it->successfulRequireCount() << ']' << Qt::endl;
+            stream << Qt::endl;
+        }
+    }
+}
+
+void ScenariosRunner::printUnsuccessfullScenariosPaths(QTextStream & stream)
+{
+    if (m_unsuccessfulScenarioPathRunCounter == 0) [[likely]]
+        return;
+    stream << "\n------------------------------------------\n";
+    stream << "Failed scenario paths\n";
+    stream << "------------------------------------------\n";
+    for (auto it = m_results.cbegin(), end = m_results.cend(); it != end; ++it)
+    {
+        if (!it->fatalMessage().isEmpty()) [[likely]]
+        {
+            for (const auto & section : it->pathToLeafSection())
+                stream << section->name() << Qt::endl;
+            stream << it->fatalMessage() << Qt::endl;
+            stream << "Stats: [Time: " << QString::number(it->elapsedTimeInNSecs()/1000000.0, 'g', 3) << "ms; Run count: " << it->runCount() << "; Successful require count: " << it->successfulRequireCount() << ']' << Qt::endl;
+            stream << Qt::endl;
+        }
+    }
+}
+
+void ScenariosRunner::printScenarioPathsStats(QTextStream & stream)
+{
+    stream << "\n------------------------------------------\n";
+    stream << "Scenario paths stats\n";
+    stream << "------------------------------------------\n";
+    stream << "Total scenarios paths ran: " << m_successfulScenarioPathRunCounter + m_unsuccessfulScenarioPathRunCounter << '\n';
+    stream << "Successful scenarios paths ran: " << m_successfulScenarioPathRunCounter << '\n';
+    stream << "Unsuccessful scenarios paths ran: " << m_unsuccessfulScenarioPathRunCounter << '\n';
+    stream << "Total requires in scenarios paths: " << m_successfulRequireCounter + m_unsuccessfulRequireCounter << '\n';
+    stream << "Successful requires in scenarios paths: " << m_successfulRequireCounter << '\n';
+    stream << "Unsuccessful requires in scenarios paths: " << m_unsuccessfulRequireCounter << '\n';
+    stream << "Time: " << QString::number(m_elapsedTimeInNSecs/1000000.0, 'g', 3) << "ms\n";
+    if (m_unsuccessfulScenarioPathRunCounter == 0 && m_unsuccessfulRequireCounter == 0)
+        stream << "\nAll " << m_successfulScenarioPathRunCounter << " scenarios paths passed.\n\n";
+    else
+        stream << "\nThere are " << m_unsuccessfulScenarioPathRunCounter << " failing scenarios paths.\n\n";
 }
 
 }

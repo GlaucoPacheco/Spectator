@@ -12,7 +12,7 @@ SCENARIO("A Scenario without require")
             THEN("then")
             {
                 AND_WHEN("and when")
-                {    
+                {
                     THEN("then in and when")
                     {
                     }

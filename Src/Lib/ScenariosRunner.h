@@ -14,6 +14,7 @@
 #include <QObject>
 #include <QtTypes>
 #include <QMap>
+#include <QTextStream>
 #include <memory>
 
 namespace Spectator
@@ -35,12 +36,20 @@ private:
     QVector<Scenario*> fetchScenarios();
     void processScenariosResults();
     void printResults();
+    void printSuccessfullScenariosPaths(QTextStream & stream);
+    void printUnsuccessfullScenariosPaths(QTextStream & stream);
+    void printScenarioPathsStats(QTextStream & stream);
 
 private:
     QThreadPool m_threadPool;
     QVector<std::shared_ptr<QFutureWatcher<ScenarioRunResults>>> m_scenarioWatchers;
     QMap<Section const *, ScenarioPathRunResults> m_results;
     qsizetype m_finishedRunningScenariosCounter = 0;
+    qsizetype m_successfulRequireCounter = 0;
+    qsizetype m_successfulScenarioPathRunCounter = 0;
+    qsizetype m_unsuccessfulRequireCounter = 0;
+    qsizetype m_unsuccessfulScenarioPathRunCounter = 0;
+    qsizetype m_elapsedTimeInNSecs = 0;
 };
 
 }
