@@ -44,8 +44,8 @@ public:
     qsizetype & successfulRequireCount() {return m_d->successfulRequireCount;}
     qsizetype unsuccessfulRequireCount() const {return m_d->unsuccessfulRequireCount;}
     qsizetype & unsuccessfulRequireCount() {return m_d->unsuccessfulRequireCount;}
-    qsizetype runCount() const {return m_d->successfulRequireCount;}
-    qsizetype & runCount() {return m_d->successfulRequireCount;}
+    qsizetype runCount() const {return m_d->runCount;}
+    qsizetype & runCount() {return m_d->runCount;}
     qint64 elapsedTimeInNSecs() const {return m_d->elapsedTimeInNSecs;}
     qint64 & elapsedTimeInNSecs() {return m_d->elapsedTimeInNSecs;}
 
