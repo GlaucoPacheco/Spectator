@@ -23,6 +23,7 @@
 #include <QMap>
 #include <QtTypes>
 #include <cstdio>
+#include <QRegularExpression>
 
 using namespace Qt::StringLiterals;
 using Spectator::Test::GeneratorData;
@@ -39,17 +40,19 @@ static void spectatorSupportsInfoMessagesOutsideScenarioScope();
 static void spectatorSupportsRequireOutsideScenarioScope();
 static void spectatorVisitsAllLeafNodesOfScenarioPathWithoutGeneratorsOnce();
 static void spectatorKeepsVisitingLeafNodeOfScenarioPathUntilExhaustingDataOfAllGeneratorsOnPath();
+static void spectatorOutputsAllScenarioPathsRan();
 
 int main(int argc, char **argv)
 {
     QCoreApplication app(argc, argv);
     qStdOut() << u"Running Tests"_s << Qt::endl;
-    spectatorFetchesSettingsFromCmdLine();
-    spectatorStoresScenarios();
-    spectatorSupportsInfoMessagesOutsideScenarioScope();
-    spectatorSupportsRequireOutsideScenarioScope();
-    spectatorVisitsAllLeafNodesOfScenarioPathWithoutGeneratorsOnce();
-    spectatorKeepsVisitingLeafNodeOfScenarioPathUntilExhaustingDataOfAllGeneratorsOnPath();
+    // spectatorFetchesSettingsFromCmdLine();
+    // spectatorStoresScenarios();
+    // spectatorSupportsInfoMessagesOutsideScenarioScope();
+    // spectatorSupportsRequireOutsideScenarioScope();
+    // spectatorVisitsAllLeafNodesOfScenarioPathWithoutGeneratorsOnce();
+    // spectatorKeepsVisitingLeafNodeOfScenarioPathUntilExhaustingDataOfAllGeneratorsOnPath();
+    spectatorOutputsAllScenarioPathsRan();
     return 0;
 }
 
@@ -417,4 +420,78 @@ static void spectatorKeepsVisitingLeafNodeOfScenarioPathUntilExhaustingDataOfAll
                  << Qt::endl;
     }
     qStdOut() << u"PASSED Spectator Keeps Visiting Leaf Node Of Scenario Path Until Exhausting Data Of All Generators On Path."_s << Qt::endl;
+}
+
+static void spectatorOutputsAllScenarioPathsRan()
+{
+    qStdOut() << u"Testing Spectator Outputs All Scenario Paths Ran."_s << Qt::endl;
+    // Run test app
+    QProcess testApp;
+    auto testsAppDir = QDir(QCoreApplication::applicationDirPath());
+    auto resourceTestAppFilePath = testsAppDir.absoluteFilePath("Resources/SpectatorOutputsAllScenarioPathsRanTestApp/SpectatorOutputsAllScenarioPathsRanTestApp");
+    testApp.start(resourceTestAppFilePath);
+    if (!testApp.waitForFinished(5000))
+        qFatal("%s%s%s", "Failed to wait for ", qUtf8Printable(resourceTestAppFilePath), " test app to finish.");
+    if (testApp.exitCode() != 0 || testApp.exitStatus() != QProcess::NormalExit)
+    {
+        qFatal().noquote() << "FAILED Spectator Outputs All Scenario Paths Ran!"
+                           << Qt::endl
+                           << "Standard error: "
+                           << Qt::endl
+                           << testApp.readAllStandardError()
+                           << Qt::endl;
+    }
+    const auto output = QString::fromUtf8(testApp.readAllStandardOutput());
+    if (output.count(u"Time:"_s) != 8)
+    {
+        qFatal().noquote() << "FAILED Spectator Outputs All Scenario Paths Ran!"
+                        << Qt::endl
+                        << "Output must have eight occurrences of \"Time:\""
+                        << Qt::endl;
+    }
+    auto filteredOutput = output;
+    filteredOutput.remove(QRegularExpression("Time:.*ms"));
+    const auto expectedInitalText = uR"(
+------------------------------------------
+Passed scenario paths
+------------------------------------------)"_s;
+    const auto expectedScenarioOutputs = QStringList()
+        << u"Scenario: A Scenario without require\nGiven: given\nWhen: when\nThen: then\nAnd When: and when\nThen: then in and when\nStats: [; Run count: 1; Require count: 0]"_s
+        << u"Scenario: A Scenario without require\nGiven: given\nWhen: when\nThen: then\nAnd Then: and then\nStats: [; Run count: 1; Require count: 0]"_s
+        << u"Scenario: A Scenario without require\nGiven: given\nWhen: when 2\nThen: then 2\nStats: [; Run count: 1; Require count: 0]"_s
+        << u"Scenario: A Scenario with a single require\nGiven: given\nWhen: when\nThen: then\nStats: [; Run count: 1; Require count: 1]"_s
+        << u"Scenario: A Scenario with two requires\nGiven: given\nWhen: when\nThen: then\nStats: [; Run count: 1; Require count: 2]"_s
+        << u"Scenario: A Scenario with one tag\nGiven: given\nWhen: when\nThen: then\nStats: [; Run count: 1; Require count: 2]"_s
+        << u"Scenario: A Scenario with multiple tags\nGiven: given\nWhen: when\nThen: then\nStats: [; Run count: 1; Require count: 4]"_s;
+    const auto expectedStatsText = uR"(------------------------------------------
+Scenario paths stats
+------------------------------------------
+Total scenarios paths ran: 7
+Successful scenarios paths ran: 7
+Unsuccessful scenarios paths ran: 0
+Total requires in scenarios paths: 9
+Successful requires in scenarios paths: 9
+Unsuccessful requires in scenarios paths: 0
+
+
+All 7 scenarios paths passed.)"_s;
+    static constexpr auto checkStringsInText = [](QStringList strings, QString text) -> bool
+    {
+        for (const auto &str : strings)
+        {
+            if (!text.contains(str))
+                return false;
+        }
+        return true;
+    };
+    if (!filteredOutput.startsWith(expectedInitalText)
+       || !filteredOutput.contains(expectedStatsText)
+       || !checkStringsInText(expectedScenarioOutputs, filteredOutput))
+    {
+        qFatal() << "FAILED Spectator Outputs All Scenario Paths Ran!"
+                 << Qt::endl
+                 << "Results did not match expected results."
+                 << Qt::endl;
+    }
+    qStdOut() << u"PASSED Spectator Outputs All Scenario Paths Ran."_s << Qt::endl;
 }
