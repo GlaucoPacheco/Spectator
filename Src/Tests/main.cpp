@@ -41,6 +41,7 @@ static void spectatorSupportsRequireOutsideScenarioScope();
 static void spectatorVisitsAllLeafNodesOfScenarioPathWithoutGeneratorsOnce();
 static void spectatorKeepsVisitingLeafNodeOfScenarioPathUntilExhaustingDataOfAllGeneratorsOnPath();
 static void spectatorOutputsAllScenarioPathsRan();
+static void spectatorRunsAllScenariosOnSingleThreadByDefault();
 
 int main(int argc, char **argv)
 {
@@ -52,7 +53,8 @@ int main(int argc, char **argv)
     // spectatorSupportsRequireOutsideScenarioScope();
     // spectatorVisitsAllLeafNodesOfScenarioPathWithoutGeneratorsOnce();
     // spectatorKeepsVisitingLeafNodeOfScenarioPathUntilExhaustingDataOfAllGeneratorsOnPath();
-    spectatorOutputsAllScenarioPathsRan();
+    // spectatorOutputsAllScenarioPathsRan();
+    spectatorRunsAllScenariosOnSingleThreadByDefault();
     return 0;
 }
 
@@ -422,6 +424,16 @@ static void spectatorKeepsVisitingLeafNodeOfScenarioPathUntilExhaustingDataOfAll
     qStdOut() << u"PASSED Spectator Keeps Visiting Leaf Node Of Scenario Path Until Exhausting Data Of All Generators On Path."_s << Qt::endl;
 }
 
+static constexpr auto checkStringsInText = [](QStringList strings, QString text) -> bool
+{
+    for (const auto &str : strings)
+    {
+        if (!text.contains(str))
+            return false;
+    }
+    return true;
+};
+
 static void spectatorOutputsAllScenarioPathsRan()
 {
     qStdOut() << u"Testing Spectator Outputs All Scenario Paths Ran."_s << Qt::endl;
@@ -475,15 +487,6 @@ Unsuccessful requires in scenarios paths: 0
 
 
 All 7 scenarios paths passed.)"_s;
-    static constexpr auto checkStringsInText = [](QStringList strings, QString text) -> bool
-    {
-        for (const auto &str : strings)
-        {
-            if (!text.contains(str))
-                return false;
-        }
-        return true;
-    };
     if (!filteredOutput.startsWith(expectedInitalText)
        || !filteredOutput.contains(expectedStatsText)
        || !checkStringsInText(expectedScenarioOutputs, filteredOutput))
@@ -494,4 +497,64 @@ All 7 scenarios paths passed.)"_s;
                  << Qt::endl;
     }
     qStdOut() << u"PASSED Spectator Outputs All Scenario Paths Ran."_s << Qt::endl;
+}
+
+static void spectatorRunsAllScenariosOnSingleThreadByDefault()
+{
+    qStdOut() << u"Testing Spectator Runs All Scenarios On Single Thread By Default."_s << Qt::endl;
+    // Run test app
+    QProcess testApp;
+    auto testsAppDir = QDir(QCoreApplication::applicationDirPath());
+    auto resourceTestAppFilePath = testsAppDir.absoluteFilePath("Resources/SpectatorRunsAllScenariosOnSingleThreadByDefaultTestApp/SpectatorRunsAllScenariosOnSingleThreadByDefaultTestApp");
+    testApp.start(resourceTestAppFilePath);
+    if (!testApp.waitForFinished(15000))
+        qFatal("%s%s%s", "Failed to wait for ", qUtf8Printable(resourceTestAppFilePath), " test app to finish.");
+    if (testApp.exitCode() != 0 || testApp.exitStatus() != QProcess::NormalExit)
+    {
+        qFatal().noquote() << "FAILED Spectator Runs All Scenarios On Single Thread By Default!"
+                           << Qt::endl
+                           << "Standard error: "
+                           << Qt::endl
+                           << testApp.readAllStandardError()
+                           << Qt::endl;
+    }
+    const auto output = QString::fromUtf8(testApp.readAllStandardOutput());
+    if (output.count(u"Time:"_s) != 3)
+    {
+        qFatal().noquote() << "FAILED Spectator Runs All Scenarios On Single Thread By Default!"
+                        << Qt::endl
+                        << "Output must have eight occurrences of \"Time:\""
+                        << Qt::endl;
+    }
+    auto filteredOutput = output;
+    filteredOutput.remove(QRegularExpression("Time:.*ms"));
+    const auto expectedInitalText = uR"(
+------------------------------------------
+Passed scenario paths
+------------------------------------------)"_s;
+    const auto expectedScenarioOutputs = QStringList()
+        << u"Scenario: Scenario 1\nStats: [; Run count: 1; Require count: 0]"_s
+        << u"Scenario: Scenario 2\nStats: [; Run count: 1; Require count: 0]"_s;
+    const auto expectedStatsText = uR"(------------------------------------------
+Scenario paths stats
+------------------------------------------
+Total scenarios paths ran: 2
+Successful scenarios paths ran: 2
+Unsuccessful scenarios paths ran: 0
+Total requires in scenarios paths: 0
+Successful requires in scenarios paths: 0
+Unsuccessful requires in scenarios paths: 0
+
+
+All 2 scenarios paths passed.)"_s;
+    if (!filteredOutput.startsWith(expectedInitalText)
+       || !filteredOutput.contains(expectedStatsText)
+       || !checkStringsInText(expectedScenarioOutputs, filteredOutput))
+    {
+        qFatal() << "FAILED Spectator Runs All Scenarios On Single Thread By Default!"
+                 << Qt::endl
+                 << "Results did not match expected results."
+                 << Qt::endl;
+    }
+    qStdOut() << u"PASSED Spectator Runs All Scenarios On Single Thread By Default."_s << Qt::endl;
 }

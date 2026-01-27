@@ -115,7 +115,12 @@ void ScenariosRunner::printSuccessfullScenariosPaths(QTextStream & stream)
         if (it->fatalMessage().isEmpty()) [[likely]]
         {
             for (const auto & section : it->pathToLeafSection())
+            {
                 stream << section->name() << Qt::endl;
+                const auto & infoMessages = it->infoMessages()[section];
+                for (const auto & infoMsg : infoMessages)
+                    stream << infoMsg << Qt::endl;
+            }
             stream << "Stats: [Time: " << QString::number(it->elapsedTimeInNSecs()/1000000.0, 'g', 3) << "ms; Run count: " << it->runCount() << "; Require count: " << it->successfulRequireCount() << ']' << Qt::endl;
             stream << Qt::endl;
         }

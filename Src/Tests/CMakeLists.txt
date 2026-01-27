@@ -13,7 +13,7 @@ add_dependencies(Tests
     SpectatorVisitsAllLeafNodesOfScenarioPathWithoutGeneratorsOnceTestApp
     SpectatorKeepsVisitingLeafNodeOfScenarioPathUntilExhaustingDataOfAllGeneratorsOnPathTestApp
     SpectatorOutputsAllScenarioPathsRanTestApp
-    SpectatorRunsAllScenariosOnSingleThreadByDefault)
+    SpectatorRunsAllScenariosOnSingleThreadByDefaultTestApp)
 target_link_libraries(Tests
     PRIVATE
     Spectator
