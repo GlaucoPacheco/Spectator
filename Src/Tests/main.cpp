@@ -22,8 +22,8 @@
 #include <Qt>
 #include <QMap>
 #include <QtTypes>
-#include <cstdio>
 #include <QRegularExpression>
+#include <cstdio>
 
 using namespace Qt::StringLiterals;
 using Spectator::Test::GeneratorData;
@@ -47,13 +47,13 @@ int main(int argc, char **argv)
 {
     QCoreApplication app(argc, argv);
     qStdOut() << u"Running Tests"_s << Qt::endl;
-    // spectatorFetchesSettingsFromCmdLine();
-    // spectatorStoresScenarios();
-    // spectatorSupportsInfoMessagesOutsideScenarioScope();
-    // spectatorSupportsRequireOutsideScenarioScope();
-    // spectatorVisitsAllLeafNodesOfScenarioPathWithoutGeneratorsOnce();
-    // spectatorKeepsVisitingLeafNodeOfScenarioPathUntilExhaustingDataOfAllGeneratorsOnPath();
-    // spectatorOutputsAllScenarioPathsRan();
+    spectatorFetchesSettingsFromCmdLine();
+    spectatorStoresScenarios();
+    spectatorSupportsInfoMessagesOutsideScenarioScope();
+    spectatorSupportsRequireOutsideScenarioScope();
+    spectatorVisitsAllLeafNodesOfScenarioPathWithoutGeneratorsOnce();
+    spectatorKeepsVisitingLeafNodeOfScenarioPathUntilExhaustingDataOfAllGeneratorsOnPath();
+    spectatorOutputsAllScenarioPathsRan();
     spectatorRunsAllScenariosOnSingleThreadByDefault();
     return 0;
 }

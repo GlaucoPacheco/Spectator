@@ -5,6 +5,7 @@
 #include "ScenarioRepository.h"
 #include "Scenario.h"
 #include "ScenarioRunResults.h"
+#include "Settings.h"
 #include <QCoreApplication>
 #include <QtLogging>
 #include <QtConcurrent>
@@ -25,6 +26,8 @@ void ScenariosRunner::runScenarios()
     auto *pApp = QCoreApplication::instance();
     if (!pApp) [[unlikely]]
         qFatal("Failed to run scenarios. Current QCoreApplication instance is null. Please, create a QCoreInstance before trying to run the scenarios.");
+    const auto settings = Settings::fromCmdLine();
+    m_threadPool.setMaxThreadCount(settings.threadCount());
     auto scenarios = fetchScenarios();
     if (scenarios.isEmpty())
         qFatal("Failed to run scenarios. There are no scenarios to run.");
