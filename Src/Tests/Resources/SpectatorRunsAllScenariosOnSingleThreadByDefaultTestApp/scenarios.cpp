@@ -24,12 +24,12 @@ static void testThreadId(Qt::HANDLE currentId)
 
 SCENARIO("Scenario 1")
 {
-    QThread::sleep(5);
+    QThread::sleep(1);
     testThreadId(QThread::currentThreadId());
 }
 
 SCENARIO("Scenario 2")
 {
-    QThread::sleep(5);
+    QThread::sleep(1);
     testThreadId(QThread::currentThreadId());
 }
