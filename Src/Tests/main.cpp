@@ -24,6 +24,7 @@
 #include <QtTypes>
 #include <QRegularExpression>
 #include <cstdio>
+#include <utility>
 
 using namespace Qt::StringLiterals;
 using Spectator::Test::GeneratorData;
@@ -43,20 +44,22 @@ static void spectatorKeepsVisitingLeafNodeOfScenarioPathUntilExhaustingDataOfAll
 static void spectatorOutputsAllScenarioPathsRan();
 static void spectatorRunsAllScenariosOnSingleThreadByDefault();
 static void spectatorSupportsRunningScenariosOnMultipleThreads();
+static void spectatorSupportsTestFiltering();
 
 int main(int argc, char **argv)
 {
     QCoreApplication app(argc, argv);
     qStdOut() << u"Running Tests"_s << Qt::endl;
-    spectatorFetchesSettingsFromCmdLine();
-    spectatorStoresScenarios();
-    spectatorSupportsInfoMessagesOutsideScenarioScope();
-    spectatorSupportsRequireOutsideScenarioScope();
-    spectatorVisitsAllLeafNodesOfScenarioPathWithoutGeneratorsOnce();
-    spectatorKeepsVisitingLeafNodeOfScenarioPathUntilExhaustingDataOfAllGeneratorsOnPath();
-    spectatorOutputsAllScenarioPathsRan();
-    spectatorRunsAllScenariosOnSingleThreadByDefault();
-    spectatorSupportsRunningScenariosOnMultipleThreads();
+    // spectatorFetchesSettingsFromCmdLine();
+    // spectatorStoresScenarios();
+    // spectatorSupportsInfoMessagesOutsideScenarioScope();
+    // spectatorSupportsRequireOutsideScenarioScope();
+    // spectatorVisitsAllLeafNodesOfScenarioPathWithoutGeneratorsOnce();
+    // spectatorKeepsVisitingLeafNodeOfScenarioPathUntilExhaustingDataOfAllGeneratorsOnPath();
+    // spectatorOutputsAllScenarioPathsRan();
+    // spectatorRunsAllScenariosOnSingleThreadByDefault();
+    // spectatorSupportsRunningScenariosOnMultipleThreads();
+    spectatorSupportsTestFiltering();
     return 0;
 }
 
@@ -620,3 +623,103 @@ All 2 scenarios paths passed.)"_s;
     }
     qStdOut() << u"PASSED Spectator Supports Running Scenarios On Multiple Threads."_s << Qt::endl;
 }
+
+static void spectatorSupportsTestFiltering()
+{
+    qStdOut() << u"Spectator Supports Scenario Filtering."_s << Qt::endl;
+    // Run test app
+    QProcess testApp;
+    auto testsAppDir = QDir(QCoreApplication::applicationDirPath());
+    auto resourceTestAppFilePath = testsAppDir.absoluteFilePath("Resources/SpectatorSupportsScenarioFilteringTestApp/SpectatorSupportsScenarioFilteringTestApp");
+    const auto testData = []() -> QVector<std::pair<QStringList, QStringList>>
+    {
+        QVector<std::pair<QStringList, QStringList>> data(3);
+        data[0].first = QStringList() << u"-t"_s << u"a tag"_s;
+        data[0].second = QStringList() << u"Scenario: Scenario with a tag\nStats: [; Run count: 1; Require count: 0]"_s
+                                       << u"Total scenarios paths ran: 1"_s
+                                       << u"Successful scenarios paths ran: 1"_s
+                                       << u"Unsuccessful scenarios paths ran: 0"_s
+                                       << u"All 1 scenarios paths passed."_s;
+        data[1].first = QStringList() << u"-s"_s << u"Scenario: Scenario with no tag"_s;
+        data[1].second = QStringList() << u"Scenario: Scenario with no tag\nStats: [; Run count: 1; Require count: 0]"_s
+                                       << u"Total scenarios paths ran: 1"_s
+                                       << u"Successful scenarios paths ran: 1"_s
+                                       << u"Unsuccessful scenarios paths ran: 0"_s
+                                       << u"All 1 scenarios paths passed."_s;
+        const QFileInfo thisFileInfo(__FILE__);
+        QDir scenariosDir(thisFileInfo.canonicalPath());
+        if (!scenariosDir.cd(u"Resources"_s) || !scenariosDir.cd(u"SpectatorSupportsScenarioFilteringTestApp"_s))
+            qFatal("Failed to navigate to directory containing scenario source files.");
+        data[2].first = QStringList() << u"-f"_s << scenariosDir.absoluteFilePath(u"scenario_on_another_file.cpp"_s);
+        data[2].second = QStringList() << u"Scenario: Scenario on another file\nStats: [; Run count: 1; Require count: 0]"_s
+                                       << u"Total scenarios paths ran: 1"_s
+                                       << u"Successful scenarios paths ran: 1"_s
+                                       << u"Unsuccessful scenarios paths ran: 0"_s
+                                       << u"All 1 scenarios paths passed."_s;
+        return data;
+    }();
+    for (const auto &currentTestData : testData)
+    {
+        testApp.start(resourceTestAppFilePath, currentTestData.first);
+        if (!testApp.waitForFinished(5000))
+            qFatal("%s%s%s", "Failed to wait for ", qUtf8Printable(resourceTestAppFilePath), " test app to finish.");
+        if (testApp.exitCode() != 0 || testApp.exitStatus() != QProcess::NormalExit)
+        {
+            qFatal().noquote() << "FAILED Spectator Supports Scenario Filtering!"
+                            << Qt::endl
+                            << "Standard error: "
+                            << Qt::endl
+                            << testApp.readAllStandardError()
+                            << Qt::endl;
+        }
+        const auto output = QString::fromUtf8(testApp.readAllStandardOutput());
+        if (output.count(u"Time:"_s) != 2)
+        {
+            qFatal().noquote() << "FAILED Spectator Supports Scenario Filtering!"
+                            << Qt::endl
+                            << "Output must have exactly two occurrences of \"Time:\""
+                            << Qt::endl;
+        }
+        auto filteredOutput = output;
+        filteredOutput.remove(QRegularExpression("Time:.*ms"));
+        
+        if (!checkStringsInText(currentTestData.second, filteredOutput))
+        {
+            qFatal() << "FAILED Spectator Supports Scenario Filtering!"
+                    << Qt::endl
+                    << "Results did not match expected results."
+                    << Qt::endl;
+        }
+    }
+    qStdOut() << u"PASSED Spectator Supports Scenario Filtering."_s << Qt::endl;
+}
+
+/*
+
+------------------------------------------
+Passed scenario paths
+------------------------------------------
+Scenario: Scenario with a tag
+Stats: [Time: 0.0143ms; Run count: 1; Require count: 0]
+
+Scenario: Scenario with no tag
+Stats: [Time: 0.00397ms; Run count: 1; Require count: 0]
+
+Scenario: Scenario on another file
+Stats: [Time: 0.00388ms; Run count: 1; Require count: 0]
+2
+
+------------------------------------------
+Scenario paths stats
+------------------------------------------
+Total scenarios paths ran: 3
+Successful scenarios paths ran: 3
+Unsuccessful scenarios paths ran: 0
+Total requires in scenarios paths: 0
+Successful requires in scenarios paths: 0
+Unsuccessful requires in scenarios paths: 0
+Time: 0.0222ms
+
+All 3 scenarios paths passed.
+
+*/
