@@ -53,7 +53,11 @@ private:
 
 #define TAG(t) _SPECTATOR_TO_UTF_16_STRING_LITERAL(t)
 #define SCENARIO(SCENARIO_NAME, ...) \
-    class _SPECTATOR_CONCATENATE_(ScenarioImpl_, __LINE__) : private ::Spectator::Scenario \
+    template <int *ptr> \
+    class _SPECTATOR_CONCATENATE_(ScenarioImpl_, __LINE__) : private ::Spectator::Scenario {}; \
+    static constinit int _SPECTATOR_CONCATENATE_(SpectatorStaticVariable_, __LINE__){0}; \
+    template<> \
+    class _SPECTATOR_CONCATENATE_(ScenarioImpl_, __LINE__)<& _SPECTATOR_CONCATENATE_(SpectatorStaticVariable_, __LINE__)> : private ::Spectator::Scenario \
     { \
     public: \
         _SPECTATOR_CONCATENATE_(ScenarioImpl_, __LINE__)(QStringView sourceFile, qint32 sourceLine, QStringView scenarioName) : ::Spectator::Scenario(sourceFile, sourceLine, scenarioName) {} \
@@ -70,7 +74,10 @@ private:
     private: \
         static constexpr auto m_tags = std::to_array({u"" __VA_OPT__(,) __VA_ARGS__}); \
     }; \
-    class _SPECTATOR_CONCATENATE_(ScenarioFinal_, __LINE__) : public _SPECTATOR_CONCATENATE_(ScenarioImpl_, __LINE__) \
+    template <int *ptr> \
+    class _SPECTATOR_CONCATENATE_(ScenarioFinal_, __LINE__) : public _SPECTATOR_CONCATENATE_(ScenarioImpl_, __LINE__)<ptr> {}; \
+    template <> \
+    class _SPECTATOR_CONCATENATE_(ScenarioFinal_, __LINE__)<& _SPECTATOR_CONCATENATE_(SpectatorStaticVariable_, __LINE__)> : public _SPECTATOR_CONCATENATE_(ScenarioImpl_, __LINE__)<& _SPECTATOR_CONCATENATE_(SpectatorStaticVariable_, __LINE__)> \
     { \
     public: \
         _SPECTATOR_CONCATENATE_(ScenarioFinal_, __LINE__)(QStringView sourceFile, qint32 sourceLine, QStringView scenarioName) : _SPECTATOR_CONCATENATE_(ScenarioImpl_, __LINE__)(sourceFile, sourceLine, scenarioName) {} \
@@ -78,7 +85,7 @@ private:
     private: \
         void _scenarioFunction() override; \
     }; \
-    static _SPECTATOR_CONCATENATE_(ScenarioFinal_, __LINE__) _SPECTATOR_CONCATENATE_(_spectator_scenario, __LINE__)(_SPECTATOR_TO_UTF_16_STRING_LITERAL(__FILE__), __LINE__, _SPECTATOR_TO_UTF_16_STRING_LITERAL("Scenario: " SCENARIO_NAME)); \
-    void _SPECTATOR_CONCATENATE_(ScenarioFinal_, __LINE__)::_scenarioFunction()
+    static _SPECTATOR_CONCATENATE_(ScenarioFinal_, __LINE__)<& _SPECTATOR_CONCATENATE_(SpectatorStaticVariable_, __LINE__)> _SPECTATOR_CONCATENATE_(_spectator_scenario, __LINE__)(_SPECTATOR_TO_UTF_16_STRING_LITERAL(__FILE__), __LINE__, _SPECTATOR_TO_UTF_16_STRING_LITERAL("Scenario: " SCENARIO_NAME)); \
+    void _SPECTATOR_CONCATENATE_(ScenarioFinal_, __LINE__)<& _SPECTATOR_CONCATENATE_(SpectatorStaticVariable_, __LINE__)>::_scenarioFunction()
 
 #endif // SPECTATOR_SCENARIO_H
