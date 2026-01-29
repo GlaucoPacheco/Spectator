@@ -34,6 +34,7 @@ private slots:
 
 private:
     QVector<Scenario*> fetchScenarios();
+    void scheduleFileteredScenariosExecution();
     void processScenariosResults();
     void printResults();
     void printSuccessfullScenariosPaths(QTextStream & stream);
@@ -42,6 +43,7 @@ private:
 
 private:
     QThreadPool m_threadPool;
+    QVector<Scenario*> m_filteredScenarios;
     QVector<std::shared_ptr<QFutureWatcher<ScenarioRunResults>>> m_scenarioWatchers;
     QMap<Section const *, ScenarioPathRunResults> m_results;
     qsizetype m_finishedRunningScenariosCounter = 0;
@@ -50,6 +52,9 @@ private:
     qsizetype m_unsuccessfulRequireCounter = 0;
     qsizetype m_unsuccessfulScenarioPathRunCounter = 0;
     qsizetype m_elapsedTimeInNSecs = 0;
+    qsizetype m_repetitionCount = 0;
+    qsizetype m_repetitionCounter = 0;
+    bool m_hasRanScenarios = false;
 };
 
 }

@@ -24,38 +24,29 @@ namespace Spectator
 
 void ScenariosRunner::runScenarios()
 {
+    if (!m_hasRanScenarios)
+        m_hasRanScenarios = true;
+    else
+        qFatal("Failed to run scenarios. ScenariosRunner::runScenarios can only be called once.");
     auto *pApp = QCoreApplication::instance();
     if (!pApp) [[unlikely]]
         qFatal("Failed to run scenarios. Current QCoreApplication instance is null. Please, create a QCoreInstance before trying to run the scenarios.");
     const auto settings = Settings::fromCmdLine();
+    m_repetitionCount = settings.repetitionCount();
+    if (m_repetitionCount > 0) [[unlikely]]
+        QTextStream(stdout) << "Repeating tests " << m_repetitionCount << " times." << Qt::endl;
     m_threadPool.setMaxThreadCount(settings.threadCount());
     auto allScenarios = fetchScenarios();
     ScenarioFilter scenarioFilter(settings);
-    QVector<Scenario*> filteredScenarios;
-    filteredScenarios.reserve(allScenarios.size());
+    m_filteredScenarios.reserve(allScenarios.size());
     for (qsizetype i = 0; i < allScenarios.size(); ++i)
     {
         if (scenarioFilter.hasToRunScenario(allScenarios[i]))
-            filteredScenarios.append(allScenarios[i]);
+            m_filteredScenarios.append(allScenarios[i]);
     }
-    if (filteredScenarios.isEmpty())
+    if (m_filteredScenarios.isEmpty())
         qFatal("Failed to run scenarios. There are no scenarios to run.");
-    m_scenarioWatchers.resize(filteredScenarios.size());
-    for (auto i = 0; i < filteredScenarios.size(); ++i)
-    {
-        m_scenarioWatchers[i].reset(new QFutureWatcher<ScenarioRunResults>{});
-        QObject::connect(m_scenarioWatchers[i].get(), &QFutureWatcher<ScenarioRunResults>::finished, this, &ScenariosRunner::onFinishedRunningScenario, Qt::QueuedConnection);
-        auto * pScenario = filteredScenarios[i];
-        m_scenarioWatchers[i]->setFuture(QtConcurrent::run(&m_threadPool, [pScenario]()
-            {
-                QEventLoop eventLoop;
-                QObject ctxObject;
-                ScenarioRunResults results;
-                QTimer::singleShot(0, &ctxObject, [&results, &eventLoop, pScenario](){results = ScenarioRunner::runScenario(*pScenario); eventLoop.exit();});
-                eventLoop.exec();
-                return results;
-            }));
-    }
+    scheduleFileteredScenariosExecution();
 }
 
 void ScenariosRunner::onFinishedRunningScenario()
@@ -67,15 +58,49 @@ void ScenariosRunner::onFinishedRunningScenario()
         if (deadline.hasExpired())
             qFatal("Failed to wait for the threads of the thread pool responsible for running scenarios to stop.");
         processScenariosResults();
-        printResults();
-        if (!QMetaObject::invokeMethod(QCoreApplication::instance(), &QCoreApplication::quit, Qt::QueuedConnection))
-            qFatal("Failed schedule call to QCoreApplication::quit.");
+        if (m_repetitionCount == 0
+            || ++m_repetitionCounter == m_repetitionCount
+            || m_unsuccessfulScenarioPathRunCounter != 0) [[likely]]
+        {
+            printResults();
+            if (!QMetaObject::invokeMethod(QCoreApplication::instance(), &QCoreApplication::quit, Qt::QueuedConnection))
+                qFatal("Failed schedule call to QCoreApplication::quit.");
+        }
+        else [[unlikely]]
+            scheduleFileteredScenariosExecution();
     }
 }
 
 QVector<Scenario*> ScenariosRunner::fetchScenarios()
 {
     return ScenarioRepository::global().getAll();
+}
+
+void ScenariosRunner::scheduleFileteredScenariosExecution()
+{
+    for (const auto & watcher : m_scenarioWatchers)
+    {
+        if (!watcher->isFinished())
+            qFatal("Failed to schedule execution for filtered scenarios. There are scenarios from previous iteration still running.");
+    }
+    m_finishedRunningScenariosCounter = 0;
+    m_scenarioWatchers.clear();
+    m_scenarioWatchers.resize(m_filteredScenarios.size());
+    for (auto i = 0; i < m_filteredScenarios.size(); ++i)
+    {
+        m_scenarioWatchers[i].reset(new QFutureWatcher<ScenarioRunResults>{});
+        QObject::connect(m_scenarioWatchers[i].get(), &QFutureWatcher<ScenarioRunResults>::finished, this, &ScenariosRunner::onFinishedRunningScenario, Qt::QueuedConnection);
+        auto * pScenario = m_filteredScenarios[i];
+        m_scenarioWatchers[i]->setFuture(QtConcurrent::run(&m_threadPool, [pScenario]()
+            {
+                QEventLoop eventLoop;
+                QObject ctxObject;
+                ScenarioRunResults results;
+                QTimer::singleShot(0, &ctxObject, [&results, &eventLoop, pScenario](){results = ScenarioRunner::runScenario(*pScenario); eventLoop.exit();});
+                eventLoop.exec();
+                return results;
+            }));
+    }
 }
 
 void ScenariosRunner::processScenariosResults()
@@ -109,6 +134,8 @@ void ScenariosRunner::printResults()
     QString buffer;
     buffer.reserve(1ul << 20);
     QTextStream bufferedStream(&buffer, QIODevice::WriteOnly);
+    if (m_repetitionCount > 0) [[unlikely]]
+        QTextStream(stdout) << "Repeated tests " << m_repetitionCounter << " times." << Qt::endl;
     printSuccessfullScenariosPaths(bufferedStream);
     printUnsuccessfullScenariosPaths(bufferedStream);
     printScenarioPathsStats(bufferedStream);

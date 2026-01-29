@@ -51,16 +51,16 @@ int main(int argc, char **argv)
 {
     QCoreApplication app(argc, argv);
     qStdOut() << u"Running Tests"_s << Qt::endl;
-    // spectatorFetchesSettingsFromCmdLine();
-    // spectatorStoresScenarios();
-    // spectatorSupportsInfoMessagesOutsideScenarioScope();
-    // spectatorSupportsRequireOutsideScenarioScope();
-    // spectatorVisitsAllLeafNodesOfScenarioPathWithoutGeneratorsOnce();
-    // spectatorKeepsVisitingLeafNodeOfScenarioPathUntilExhaustingDataOfAllGeneratorsOnPath();
-    // spectatorOutputsAllScenarioPathsRan();
-    // spectatorRunsAllScenariosOnSingleThreadByDefault();
-    // spectatorSupportsRunningScenariosOnMultipleThreads();
-    // spectatorSupportsScenarioFiltering();
+    spectatorFetchesSettingsFromCmdLine();
+    spectatorStoresScenarios();
+    spectatorSupportsInfoMessagesOutsideScenarioScope();
+    spectatorSupportsRequireOutsideScenarioScope();
+    spectatorVisitsAllLeafNodesOfScenarioPathWithoutGeneratorsOnce();
+    spectatorKeepsVisitingLeafNodeOfScenarioPathUntilExhaustingDataOfAllGeneratorsOnPath();
+    spectatorOutputsAllScenarioPathsRan();
+    spectatorRunsAllScenariosOnSingleThreadByDefault();
+    spectatorSupportsRunningScenariosOnMultipleThreads();
+    spectatorSupportsScenarioFiltering();
     spectatorSupportsTestRepetition();
     return 0;
 }
@@ -725,8 +725,9 @@ static void spectatorSupportsTestRepetition()
     }
     auto filteredOutput = output;
     filteredOutput.remove(QRegularExpression("Time:.*ms"));
-    const auto expectedInitalText = uR"(
-Repeating tests 10 times.
+    const auto expectedInitalText = uR"(Repeating tests 10 times.
+Repeated tests 10 times.
+
 ------------------------------------------
 Passed scenario paths
 ------------------------------------------)"_s;
