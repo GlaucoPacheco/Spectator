@@ -6,6 +6,7 @@
 #include "Scenario.h"
 #include "ScenarioRunResults.h"
 #include "Settings.h"
+#include "ScenarioFilter.h"
 #include <QCoreApplication>
 #include <QtLogging>
 #include <QtConcurrent>
@@ -28,15 +29,23 @@ void ScenariosRunner::runScenarios()
         qFatal("Failed to run scenarios. Current QCoreApplication instance is null. Please, create a QCoreInstance before trying to run the scenarios.");
     const auto settings = Settings::fromCmdLine();
     m_threadPool.setMaxThreadCount(settings.threadCount());
-    auto scenarios = fetchScenarios();
-    if (scenarios.isEmpty())
+    auto allScenarios = fetchScenarios();
+    ScenarioFilter scenarioFilter(settings);
+    QVector<Scenario*> filteredScenarios;
+    filteredScenarios.reserve(allScenarios.size());
+    for (qsizetype i = 0; i < allScenarios.size(); ++i)
+    {
+        if (scenarioFilter.hasToRunScenario(allScenarios[i]))
+            filteredScenarios.append(allScenarios[i]);
+    }
+    if (filteredScenarios.isEmpty())
         qFatal("Failed to run scenarios. There are no scenarios to run.");
-    m_scenarioWatchers.resize(scenarios.size());
-    for (auto i = 0; i < scenarios.size(); ++i)
+    m_scenarioWatchers.resize(filteredScenarios.size());
+    for (auto i = 0; i < filteredScenarios.size(); ++i)
     {
         m_scenarioWatchers[i].reset(new QFutureWatcher<ScenarioRunResults>{});
         QObject::connect(m_scenarioWatchers[i].get(), &QFutureWatcher<ScenarioRunResults>::finished, this, &ScenariosRunner::onFinishedRunningScenario, Qt::QueuedConnection);
-        auto * pScenario = scenarios[i];
+        auto * pScenario = filteredScenarios[i];
         m_scenarioWatchers[i]->setFuture(QtConcurrent::run(&m_threadPool, [pScenario]()
             {
                 QEventLoop eventLoop;

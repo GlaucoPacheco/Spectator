@@ -50,15 +50,15 @@ int main(int argc, char **argv)
 {
     QCoreApplication app(argc, argv);
     qStdOut() << u"Running Tests"_s << Qt::endl;
-    // spectatorFetchesSettingsFromCmdLine();
-    // spectatorStoresScenarios();
-    // spectatorSupportsInfoMessagesOutsideScenarioScope();
-    // spectatorSupportsRequireOutsideScenarioScope();
-    // spectatorVisitsAllLeafNodesOfScenarioPathWithoutGeneratorsOnce();
-    // spectatorKeepsVisitingLeafNodeOfScenarioPathUntilExhaustingDataOfAllGeneratorsOnPath();
-    // spectatorOutputsAllScenarioPathsRan();
-    // spectatorRunsAllScenariosOnSingleThreadByDefault();
-    // spectatorSupportsRunningScenariosOnMultipleThreads();
+    spectatorFetchesSettingsFromCmdLine();
+    spectatorStoresScenarios();
+    spectatorSupportsInfoMessagesOutsideScenarioScope();
+    spectatorSupportsRequireOutsideScenarioScope();
+    spectatorVisitsAllLeafNodesOfScenarioPathWithoutGeneratorsOnce();
+    spectatorKeepsVisitingLeafNodeOfScenarioPathUntilExhaustingDataOfAllGeneratorsOnPath();
+    spectatorOutputsAllScenarioPathsRan();
+    spectatorRunsAllScenariosOnSingleThreadByDefault();
+    spectatorSupportsRunningScenariosOnMultipleThreads();
     spectatorSupportsTestFiltering();
     return 0;
 }
@@ -640,7 +640,7 @@ static void spectatorSupportsTestFiltering()
                                        << u"Successful scenarios paths ran: 1"_s
                                        << u"Unsuccessful scenarios paths ran: 0"_s
                                        << u"All 1 scenarios paths passed."_s;
-        data[1].first = QStringList() << u"-s"_s << u"Scenario: Scenario with no tag"_s;
+        data[1].first = QStringList() << u"-s"_s << u"Scenario with no tag"_s;
         data[1].second = QStringList() << u"Scenario: Scenario with no tag\nStats: [; Run count: 1; Require count: 0]"_s
                                        << u"Total scenarios paths ran: 1"_s
                                        << u"Successful scenarios paths ran: 1"_s
@@ -693,33 +693,3 @@ static void spectatorSupportsTestFiltering()
     }
     qStdOut() << u"PASSED Spectator Supports Scenario Filtering."_s << Qt::endl;
 }
-
-/*
-
-------------------------------------------
-Passed scenario paths
-------------------------------------------
-Scenario: Scenario with a tag
-Stats: [Time: 0.0143ms; Run count: 1; Require count: 0]
-
-Scenario: Scenario with no tag
-Stats: [Time: 0.00397ms; Run count: 1; Require count: 0]
-
-Scenario: Scenario on another file
-Stats: [Time: 0.00388ms; Run count: 1; Require count: 0]
-2
-
-------------------------------------------
-Scenario paths stats
-------------------------------------------
-Total scenarios paths ran: 3
-Successful scenarios paths ran: 3
-Unsuccessful scenarios paths ran: 0
-Total requires in scenarios paths: 0
-Successful requires in scenarios paths: 0
-Unsuccessful requires in scenarios paths: 0
-Time: 0.0222ms
-
-All 3 scenarios paths passed.
-
-*/
