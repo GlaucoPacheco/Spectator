@@ -44,22 +44,24 @@ static void spectatorKeepsVisitingLeafNodeOfScenarioPathUntilExhaustingDataOfAll
 static void spectatorOutputsAllScenarioPathsRan();
 static void spectatorRunsAllScenariosOnSingleThreadByDefault();
 static void spectatorSupportsRunningScenariosOnMultipleThreads();
-static void spectatorSupportsTestFiltering();
+static void spectatorSupportsScenarioFiltering();
+static void spectatorSupportsTestRepetition();
 
 int main(int argc, char **argv)
 {
     QCoreApplication app(argc, argv);
     qStdOut() << u"Running Tests"_s << Qt::endl;
-    spectatorFetchesSettingsFromCmdLine();
-    spectatorStoresScenarios();
-    spectatorSupportsInfoMessagesOutsideScenarioScope();
-    spectatorSupportsRequireOutsideScenarioScope();
-    spectatorVisitsAllLeafNodesOfScenarioPathWithoutGeneratorsOnce();
-    spectatorKeepsVisitingLeafNodeOfScenarioPathUntilExhaustingDataOfAllGeneratorsOnPath();
-    spectatorOutputsAllScenarioPathsRan();
-    spectatorRunsAllScenariosOnSingleThreadByDefault();
-    spectatorSupportsRunningScenariosOnMultipleThreads();
-    spectatorSupportsTestFiltering();
+    // spectatorFetchesSettingsFromCmdLine();
+    // spectatorStoresScenarios();
+    // spectatorSupportsInfoMessagesOutsideScenarioScope();
+    // spectatorSupportsRequireOutsideScenarioScope();
+    // spectatorVisitsAllLeafNodesOfScenarioPathWithoutGeneratorsOnce();
+    // spectatorKeepsVisitingLeafNodeOfScenarioPathUntilExhaustingDataOfAllGeneratorsOnPath();
+    // spectatorOutputsAllScenarioPathsRan();
+    // spectatorRunsAllScenariosOnSingleThreadByDefault();
+    // spectatorSupportsRunningScenariosOnMultipleThreads();
+    // spectatorSupportsScenarioFiltering();
+    spectatorSupportsTestRepetition();
     return 0;
 }
 
@@ -624,7 +626,7 @@ All 2 scenarios paths passed.)"_s;
     qStdOut() << u"PASSED Spectator Supports Running Scenarios On Multiple Threads."_s << Qt::endl;
 }
 
-static void spectatorSupportsTestFiltering()
+static void spectatorSupportsScenarioFiltering()
 {
     qStdOut() << u"Spectator Supports Scenario Filtering."_s << Qt::endl;
     // Run test app
@@ -692,4 +694,70 @@ static void spectatorSupportsTestFiltering()
         }
     }
     qStdOut() << u"PASSED Spectator Supports Scenario Filtering."_s << Qt::endl;
+}
+
+static void spectatorSupportsTestRepetition()
+{
+    qStdOut() << u"Testing Spectator Supports Test Repetition."_s << Qt::endl;
+    // Run test app
+    QProcess testApp;
+    auto testsAppDir = QDir(QCoreApplication::applicationDirPath());
+    auto resourceTestAppFilePath = testsAppDir.absoluteFilePath("Resources/SpectatorOutputsAllScenarioPathsRanTestApp/SpectatorOutputsAllScenarioPathsRanTestApp");
+    testApp.start(resourceTestAppFilePath, QStringList() << "-r" << "10");
+    if (!testApp.waitForFinished(5000))
+        qFatal("%s%s%s", "Failed to wait for ", qUtf8Printable(resourceTestAppFilePath), " test app to finish.");
+    if (testApp.exitCode() != 0 || testApp.exitStatus() != QProcess::NormalExit)
+    {
+        qFatal().noquote() << "FAILED Spectator Supports Test Repetition!"
+                           << Qt::endl
+                           << "Standard error: "
+                           << Qt::endl
+                           << testApp.readAllStandardError()
+                           << Qt::endl;
+    }
+    const auto output = QString::fromUtf8(testApp.readAllStandardOutput());
+    if (output.count(u"Time:"_s) != 8)
+    {
+        qFatal().noquote() << "FAILED Spectator Supports Test Repetition!"
+                        << Qt::endl
+                        << "Output must have exactly eight occurrences of \"Time:\""
+                        << Qt::endl;
+    }
+    auto filteredOutput = output;
+    filteredOutput.remove(QRegularExpression("Time:.*ms"));
+    const auto expectedInitalText = uR"(
+Repeating tests 10 times.
+------------------------------------------
+Passed scenario paths
+------------------------------------------)"_s;
+    const auto expectedScenarioOutputs = QStringList()
+        << u"Scenario: A Scenario without require\nGiven: given\nWhen: when\nThen: then\nAnd When: and when\nThen: then in and when\nStats: [; Run count: 10; Require count: 0]"_s
+        << u"Scenario: A Scenario without require\nGiven: given\nWhen: when\nThen: then\nAnd Then: and then\nStats: [; Run count: 10; Require count: 0]"_s
+        << u"Scenario: A Scenario without require\nGiven: given\nWhen: when 2\nThen: then 2\nStats: [; Run count: 10; Require count: 0]"_s
+        << u"Scenario: A Scenario with a single require\nGiven: given\nWhen: when\nThen: then\nStats: [; Run count: 10; Require count: 10]"_s
+        << u"Scenario: A Scenario with two requires\nGiven: given\nWhen: when\nThen: then\nStats: [; Run count: 10; Require count: 20]"_s
+        << u"Scenario: A Scenario with one tag\nGiven: given\nWhen: when\nThen: then\nStats: [; Run count: 10; Require count: 20]"_s
+        << u"Scenario: A Scenario with multiple tags\nGiven: given\nWhen: when\nThen: then\nStats: [; Run count: 10; Require count: 40]"_s;
+    const auto expectedStatsText = uR"(------------------------------------------
+Scenario paths stats
+------------------------------------------
+Total scenarios paths ran: 70
+Successful scenarios paths ran: 70
+Unsuccessful scenarios paths ran: 0
+Total requires in scenarios paths: 90
+Successful requires in scenarios paths: 90
+Unsuccessful requires in scenarios paths: 0
+
+
+All 70 scenarios paths passed.)"_s;
+    if (!filteredOutput.startsWith(expectedInitalText)
+       || !filteredOutput.contains(expectedStatsText)
+       || !checkStringsInText(expectedScenarioOutputs, filteredOutput))
+    {
+        qFatal() << "FAILED Spectator Supports Test Repetition!"
+                 << Qt::endl
+                 << "Results did not match expected results."
+                 << Qt::endl;
+    }
+    qStdOut() << u"PASSED Spectator Supports Test Repetition."_s << Qt::endl;
 }
