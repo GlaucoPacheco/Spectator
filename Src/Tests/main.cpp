@@ -84,9 +84,9 @@ static void spectatorFetchesSettingsFromCmdLine()
     const auto tagsList = QList<QStringList>() << QStringList()
                                                << (QStringList() << u"Design Tests"_s  << u"Another Tag"_s)
                                                << (QStringList() << u"TLS Encryption"_s);
-    for (const auto threadCount : threadCounts)
+    for (const auto & threadCount : threadCounts)
     {
-        for (const auto repetitionCount : repetitionCounts)
+        for (const auto & repetitionCount : repetitionCounts)
         {
             for (const auto & filePathFilter : filePathFilters)
             {
