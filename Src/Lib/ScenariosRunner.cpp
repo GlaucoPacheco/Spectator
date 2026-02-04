@@ -156,7 +156,7 @@ void ScenariosRunner::printSuccessfullScenariosPaths(QTextStream & stream)
             for (const auto & section : it->pathToLeafSection())
             {
                 stream << section->name() << Qt::endl;
-                const auto & infoMessages = it->infoMessages()[section];
+                const auto infoMessages = it->infoMessages()[section];
                 for (const auto & infoMsg : infoMessages)
                     stream << infoMsg << Qt::endl;
             }
