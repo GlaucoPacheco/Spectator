@@ -1,4 +1,4 @@
-## What is Spectator?
+# What is Spectator?
 
  Spectator is a C++ test framework for behavior-driven design.
 
