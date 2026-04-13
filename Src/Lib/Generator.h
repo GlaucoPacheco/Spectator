@@ -4,8 +4,6 @@
 #ifndef SPECTATOR_GENERATOR_H
 #define SPECTATOR_GENERATOR_H
 
-#include "Scenario.h"
-#include "ScenarioRunner.h"
 #include <QStringView>
 #include <QtClassHelperMacros>
 #include <QtTypes>
@@ -20,6 +18,8 @@ struct GeneratorTypeHolder
     using Type = T;
 };
 
+class Scenario;
+
 class Generator
 {
     Q_DISABLE_COPY_MOVE(Generator)
@@ -29,19 +29,21 @@ public:
     template <class T>
     const T & currentValue(T const * const pData, Scenario * pScenario) const
     {
-        return pData[pScenario->scenarioRunner()->getGeneratorIndex(this)];
+        return pData[getCurrentIndex(pScenario, this)];
     }
 
     template <class T>
     T currentRangeValue(T minVal, T maxVal, T stepVal, Scenario * pScenario) const
     {
-        const qsizetype currentIndex = pScenario->scenarioRunner()->getGeneratorIndex(this);
-        const auto currentValue = minVal + stepVal * currentIndex;
+        const auto currentValue = minVal + stepVal * getCurrentIndex(pScenario, this);
         return currentValue;
     }
     inline qsizetype size() const {return m_size;}
     inline QStringView sourceFile() const {return m_sourceFile;}
     inline qint32 sourceLine() const {return m_sourceLine;}
+
+private:
+    static qsizetype getCurrentIndex(Scenario *pScenario, Generator const * const pGenerator);
 
 private:
     const qsizetype m_size;
