@@ -14,7 +14,7 @@ using namespace Qt::StringLiterals;
 namespace Spectator
 {
 
-void REQUIRE(bool expr, const std::source_location location)
+SPECTATOR_EXPORT void REQUIRE(bool expr, const std::source_location location)
 {
     if (expr) [[likely]]
     {
@@ -36,7 +36,7 @@ void REQUIRE(bool expr, const std::source_location location)
     }
 }
 
-void INFO(QString message)
+SPECTATOR_EXPORT void INFO(QString message)
 {
     if (ScenarioRunner::hasCurrent()) [[likely]]
         ScenarioRunner::current().recordInfoMessage(message);
@@ -44,9 +44,36 @@ void INFO(QString message)
         GlobalScopeData::recordInfoMessage(message);
 }
 
-void FAIL(QString message, const std::source_location location)
+SPECTATOR_EXPORT void FAIL(QString message, const std::source_location location)
 {
     throw SpectatorException(message, QString::fromUtf8(location.file_name()), location.line());
+}
+
+static void processEvents(int timeInMSecs = -1)
+{
+    QCoreApplication::sendPostedEvents();
+    QCoreApplication::sendPostedEvents(nullptr, QEvent::DeferredDelete);
+    if (timeInMSecs > 0)
+        QCoreApplication::processEvents(QEventLoop::AllEvents | QEventLoop::WaitForMoreEvents, timeInMSecs);
+    else
+        QCoreApplication::processEvents();
+}
+
+SPECTATOR_EXPORT bool tryAcquire(QSemaphore &semaphore, int resourceCount, QDeadlineTimer deadlineTimer)
+{
+    if (deadlineTimer.remainingTime() < 0)
+        qFatal("Failed to wait for semaphore. Deadline timer must have a non-negative remaining time.");
+    if (resourceCount <= 0)
+        qFatal("Failed to wait for semaphore. resourceCount must be a positive integer.");
+    do
+    {
+        processEvents();
+        if (semaphore.tryAcquire(resourceCount))
+            return true;
+        else
+            processEvents(1);
+    } while (!deadlineTimer.hasExpired());
+    return semaphore.tryAcquire(resourceCount);
 }
 
 }

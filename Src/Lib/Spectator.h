@@ -4,6 +4,7 @@
 #ifndef SPECTATOR_H
 #define SPECTATOR_H
 
+#include "SpectatorGlobals.h"
 #include "MacroHelpers.h"
 #include "Generator.h"
 #include "Scenario.h"
@@ -12,6 +13,9 @@
 #include "SectionGuard.h"
 #include <QCoreApplication>
 #include <QString>
+#include <QSemaphore>
+#include <QDeadlineTimer>
+#include <QDebug>
 #include <source_location>
 
 #define SPECTATOR_MAIN \
@@ -35,9 +39,22 @@
 
 namespace Spectator
 {
-    void REQUIRE(bool expr, const std::source_location location = std::source_location::current());
-    void INFO(QString message);
-    void FAIL(QString message, const std::source_location location = std::source_location::current());
+    SPECTATOR_EXPORT void REQUIRE(bool expr, const std::source_location location = std::source_location::current());
+    SPECTATOR_EXPORT void INFO(QString message);
+    SPECTATOR_EXPORT void FAIL(QString message, const std::source_location location = std::source_location::current());
+    SPECTATOR_EXPORT bool tryAcquire(QSemaphore &semaphore, int resourceCount, QDeadlineTimer deadlineTimer);
+    inline static bool tryAcquire(QSemaphore &semaphore, QDeadlineTimer deadlineTimer)
+    {
+        return tryAcquire(semaphore, 1, deadlineTimer);
+    }
+    inline static bool tryAcquire(QSemaphore &semaphore, int timeoutInSecs)
+    {
+        return tryAcquire(semaphore, QDeadlineTimer(1000*timeoutInSecs));
+    }
+    inline static bool tryAcquire(QSemaphore &semaphore, int resourceCount, int timeoutInSecs)
+    {
+        return tryAcquire(semaphore, resourceCount, QDeadlineTimer(1000*timeoutInSecs));
+    }
 }
 
 #endif // SPECTATOR_H
