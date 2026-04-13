@@ -48,3 +48,53 @@ target_link_libraries(Spectator
     PRIVATE
     Qt::Core
     Qt::Concurrent)
+include(GNUInstallDirs)
+    target_include_directories(Spectator PUBLIC "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>")
+    install(TARGETS Spectator
+        EXPORT Spectator
+        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+        INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+    install(FILES
+        SpectatorGlobals.h
+        Generator.h
+        MacroHelpers.h
+        Scenario.h
+        ScenariosRunner.h
+        Section.h
+        SectionGuard.h
+        Spectator.h
+        DESTINATION
+        ${CMAKE_INSTALL_INCLUDEDIR}/Private)
+    install(FILES
+        Spectator
+        DESTINATION
+        ${CMAKE_INSTALL_INCLUDEDIR})
+    install(EXPORT Spectator
+        FILE SpectatorConfig.cmake
+        NAMESPACE Spectator::
+        DESTINATION
+        ${CMAKE_INSTALL_LIBDIR}/cmake)
+    include(CMakePackageConfigHelpers)
+    configure_package_config_file(${CMAKE_CURRENT_SOURCE_DIR}/Config.cmake.in
+        "${CMAKE_CURRENT_BINARY_DIR}/SpectatorConfig.cmake"
+        INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake)
+    include(CMakeFindDependencyMacro)
+    find_dependency(Qt6 COMPONENTS Core Concurrent REQUIRED)
+    set(version 1.0.0)
+    set_property(TARGET Spectator PROPERTY VERSION ${version})
+    set_property(TARGET Spectator PROPERTY SOVERSION 1)
+    set_property(TARGET Spectator PROPERTY INTERFACE_Lib_MAJOR_VERSION 1)
+    set_property(TARGET Spectator APPEND PROPERTY COMPATIBLE_INTERFACE_STRING Lib_MAJOR_VERSION)
+    write_basic_package_version_file(
+        "${CMAKE_CURRENT_BINARY_DIR}/SpectatorConfigVersion.cmake"
+        VERSION "${version}"
+        COMPATIBILITY AnyNewerVersion)
+    export(EXPORT Spectator
+        FILE "${CMAKE_CURRENT_BINARY_DIR}/cmake/SpectatorConfig.cmake"
+        NAMESPACE Spectator::)
+    install(FILES
+        "${CMAKE_CURRENT_BINARY_DIR}/SpectatorConfig.cmake"
+        "${CMAKE_CURRENT_BINARY_DIR}/SpectatorConfigVersion.cmake"
+        DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake)
