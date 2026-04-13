@@ -6,10 +6,7 @@
 
 #include "MacroHelpers.h"
 #include "Generator.h"
-#include "Scenario.h"
-#include "ScenarioRunner.h"
 #include "ScenariosRunner.h"
-#include "SpectatorException.h"
 #include "Section.h"
 #include "SectionGuard.h"
 #include <QCoreApplication>

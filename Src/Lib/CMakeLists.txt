@@ -21,6 +21,8 @@ qt_add_library(SpectatorObjs OBJECT
     ScenarioRunResults.h
     ScenariosRunner.cpp
     ScenariosRunner.h
+    ScenariosRunnerPrivate.cpp
+    ScenariosRunnerPrivate.h
     Section.cpp
     Section.h
     SectionGuard.cpp

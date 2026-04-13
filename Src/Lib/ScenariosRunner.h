@@ -4,57 +4,22 @@
 #ifndef SPECTATOR_SCENARIOS_RUNNER_H
 #define SPECTATOR_SCENARIOS_RUNNER_H
 
-#include "Scenario.h"
-#include "ScenarioRunResults.h"
-#include "Section.h"
-#include <QtClassHelperMacros>
-#include <QVector>
-#include <QThreadPool>
-#include <QFutureWatcher>
-#include <QObject>
-#include <QtTypes>
-#include <QMap>
-#include <QTextStream>
 #include <memory>
 
 namespace Spectator
 {
 
-class ScenariosRunner : public QObject
+class ScenariosRunnerPrivate;
+
+class ScenariosRunner
 {
-    Q_OBJECT
-    Q_DISABLE_COPY_MOVE(ScenariosRunner)
 public:
-    ScenariosRunner() = default;
-    ~ScenariosRunner() = default;
+    ScenariosRunner();
+    ~ScenariosRunner();
     void runScenarios();
 
-private slots:
-    void onFinishedRunningScenario();
-
 private:
-    QVector<Scenario*> fetchScenarios();
-    void scheduleFileteredScenariosExecution();
-    void processScenariosResults();
-    void printResults();
-    void printSuccessfullScenariosPaths(QTextStream & stream);
-    void printUnsuccessfullScenariosPaths(QTextStream & stream);
-    void printScenarioPathsStats(QTextStream & stream);
-
-private:
-    QThreadPool m_threadPool;
-    QVector<Scenario*> m_filteredScenarios;
-    QVector<std::shared_ptr<QFutureWatcher<ScenarioRunResults>>> m_scenarioWatchers;
-    QMap<Section const *, ScenarioPathRunResults> m_results;
-    qsizetype m_finishedRunningScenariosCounter = 0;
-    qsizetype m_successfulRequireCounter = 0;
-    qsizetype m_successfulScenarioPathRunCounter = 0;
-    qsizetype m_unsuccessfulRequireCounter = 0;
-    qsizetype m_unsuccessfulScenarioPathRunCounter = 0;
-    qsizetype m_elapsedTimeInNSecs = 0;
-    qsizetype m_repetitionCount = 0;
-    qsizetype m_repetitionCounter = 0;
-    bool m_hasRanScenarios = false;
+    std::unique_ptr<ScenariosRunnerPrivate> m_pScenariosRunnerPrivate;
 };
 
 }
