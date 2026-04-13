@@ -4,6 +4,7 @@
 #ifndef SPECTATOR_SCENARIOS_RUNNER_H
 #define SPECTATOR_SCENARIOS_RUNNER_H
 
+#include "SpectatorGlobals.h"
 #include <memory>
 
 namespace Spectator
@@ -11,7 +12,7 @@ namespace Spectator
 
 class ScenariosRunnerPrivate;
 
-class ScenariosRunner
+class SPECTATOR_EXPORT ScenariosRunner
 {
 public:
     ScenariosRunner();

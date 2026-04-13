@@ -4,6 +4,7 @@
 #ifndef SPECTATOR_SECTION_GUARD_H
 #define SPECTATOR_SECTION_GUARD_H
 
+#include "SpectatorGlobals.h"
 #include <QtClassHelperMacros>
 
 namespace Spectator
@@ -12,7 +13,7 @@ namespace Spectator
 class Section;
 class Scenario;
 
-class SectionGuard
+class SPECTATOR_EXPORT SectionGuard
 {
     Q_DISABLE_COPY_MOVE(SectionGuard)
 public:

@@ -4,6 +4,7 @@
 #ifndef SPECTATOR_SCENARIO_H
 #define SPECTATOR_SCENARIO_H
 
+#include "SpectatorGlobals.h"
 #include "MacroHelpers.h"
 #include "Section.h"
 #include <QStringView>
@@ -18,7 +19,7 @@ namespace Spectator
 
 class ScenarioRunner;
 
-class Scenario : public Section
+class SPECTATOR_EXPORT Scenario : public Section
 {
     Q_DISABLE_COPY_MOVE(Scenario)
 public:

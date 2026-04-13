@@ -40,6 +40,7 @@ target_link_libraries(SpectatorObjs
     Qt::Core
     Qt::Concurrent)
 qt_add_library(Spectator SHARED $<TARGET_OBJECTS:SpectatorObjs>)
+target_compile_definitions(Spectator PRIVATE SPECTATOR_LIBRARY)
 set_target_properties(Spectator PROPERTIES
     C_VISIBILITY_PRESET hidden
     CXX_VISIBILITY_PRESET hidden)

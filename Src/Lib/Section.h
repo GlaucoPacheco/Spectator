@@ -4,6 +4,7 @@
 #ifndef SPECTATOR_SECTION_H
 #define SPECTATOR_SECTION_H
 
+#include "SpectatorGlobals.h"
 #include <QStringView>
 #include <QtTypes>
 #include <QtClassHelperMacros>
@@ -11,7 +12,7 @@
 namespace Spectator
 {
 
-class Section
+class SPECTATOR_EXPORT Section
 {
     Q_DISABLE_COPY_MOVE(Section)
 public:

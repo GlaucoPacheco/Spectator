@@ -6,10 +6,10 @@
 
 #include <QtCore/QtGlobal>
 
-#if defined(SPECTATOR_LIB_LIBRARY)
-    #define SPECTATOR_LIB_EXPORT Q_DECL_EXPORT
+#if defined(SPECTATOR_LIBRARY)
+    #define SPECTATOR_EXPORT Q_DECL_EXPORT
  #else
-    #define SPECTATOR_LIB_EXPORT Q_DECL_IMPORT
+    #define SPECTATOR_EXPORT Q_DECL_IMPORT
  #endif
 
 namespace Spectator

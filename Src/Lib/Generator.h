@@ -4,6 +4,7 @@
 #ifndef SPECTATOR_GENERATOR_H
 #define SPECTATOR_GENERATOR_H
 
+#include "SpectatorGlobals.h"
 #include <QStringView>
 #include <QtClassHelperMacros>
 #include <QtTypes>
@@ -20,7 +21,7 @@ struct GeneratorTypeHolder
 
 class Scenario;
 
-class Generator
+class SPECTATOR_EXPORT Generator
 {
     Q_DISABLE_COPY_MOVE(Generator)
 public:

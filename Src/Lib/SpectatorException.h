@@ -12,7 +12,7 @@
 namespace Spectator
 {
 
-class SPECTATOR_LIB_EXPORT SpectatorException
+class SPECTATOR_EXPORT SpectatorException
 {
 public:
     SpectatorException(QString message) : m_message(message) {}
