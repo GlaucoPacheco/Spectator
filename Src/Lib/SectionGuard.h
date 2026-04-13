@@ -4,32 +4,20 @@
 #ifndef SPECTATOR_SECTION_GUARD_H
 #define SPECTATOR_SECTION_GUARD_H
 
-#include "Section.h"
-#include "Scenario.h"
-#include "ScenarioRunner.h"
 #include <QtClassHelperMacros>
 
 namespace Spectator
 {
 
 class Section;
+class Scenario;
 
 class SectionGuard
 {
     Q_DISABLE_COPY_MOVE(SectionGuard)
 public:
-    SectionGuard(Section const * const section, Scenario * pScenario) :
-        m_pSection(section),
-        m_pScenario(pScenario),
-        m_hasEntered(m_pScenario->scenarioRunner()->tryPushSection(m_pSection))
-    {
-        assert(m_pSection);
-    }
-    ~SectionGuard()
-    {
-        if (m_hasEntered)
-            m_pScenario->scenarioRunner()->popSection(m_pSection);
-    }
+    SectionGuard(Section const * const section, Scenario * pScenario);
+    ~SectionGuard();
     inline bool hasEntered() const {return m_hasEntered;}
 
 private:

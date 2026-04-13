@@ -4,6 +4,7 @@
 #include "ScenariosRunnerPrivate.h"
 #include "ScenarioRepository.h"
 #include "Scenario.h"
+#include "ScenarioRunner.h"
 #include "ScenarioRunResults.h"
 #include "Settings.h"
 #include "ScenarioFilter.h"

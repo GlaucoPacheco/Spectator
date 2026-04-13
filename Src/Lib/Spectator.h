@@ -6,6 +6,7 @@
 
 #include "MacroHelpers.h"
 #include "Generator.h"
+#include "Scenario.h"
 #include "ScenariosRunner.h"
 #include "Section.h"
 #include "SectionGuard.h"

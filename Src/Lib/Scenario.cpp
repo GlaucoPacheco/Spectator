@@ -3,6 +3,8 @@
 
 #include "Scenario.h"
 #include "ScenarioRepository.h"
+#include "ScenarioRunner.h"
+#include "SpectatorException.h"
 
 using namespace Qt::StringLiterals;
 
@@ -13,6 +15,31 @@ Scenario::Scenario(QStringView sourceFile, qint32 sourceLine, QStringView scenar
     Section(sourceFile, sourceLine, scenarioName)
 {
     ScenarioRepository::global().addScenario(this);
+}
+
+Scenario::~Scenario() = default;
+
+void Scenario::REQUIRE(bool expr, const std::source_location location)
+{
+    if (expr) [[likely]]
+        m_pScenarioRunner->incrementSuccessfulRequireCounter();
+    else [[unlikely]]
+        processFailedRequire(location);
+}
+
+void Scenario::INFO(QString message)
+{
+    m_pScenarioRunner->recordInfoMessage(message);
+}
+
+void Scenario::FAIL(QString message, const std::source_location location)
+{
+    throw SpectatorException(message, QString::fromUtf8(location.file_name()), location.line());
+}
+
+ScenarioRunner * Scenario::scenarioRunner()
+{
+    return m_pScenarioRunner;
 }
 
 void Scenario::processFailedRequire(const std::source_location location)

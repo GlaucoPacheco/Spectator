@@ -6,8 +6,6 @@
 
 #include "MacroHelpers.h"
 #include "Section.h"
-#include "ScenarioRunner.h"
-#include "SpectatorException.h"
 #include <QStringView>
 #include <QString>
 #include <QtTypes>
@@ -18,28 +16,23 @@
 namespace Spectator
 {
 
+class ScenarioRunner;
+
 class Scenario : public Section
 {
     Q_DISABLE_COPY_MOVE(Scenario)
 public:
     Scenario(QStringView sourceFile, qint32 sourceLine, QStringView scenarioName);
-    virtual ~Scenario() = default;
-    inline void REQUIRE(bool expr, const std::source_location location = std::source_location::current())
-    {
-        if (expr) [[likely]]
-            m_pScenarioRunner->incrementSuccessfulRequireCounter();
-        else [[unlikely]]
-            processFailedRequire(location);
-    }
-    inline void INFO(QString message) {m_pScenarioRunner->recordInfoMessage(message);}
-    inline void FAIL(QString message, const std::source_location location = std::source_location::current())
-    {throw SpectatorException(message, QString::fromUtf8(location.file_name()), location.line());}
+    virtual ~Scenario();
+    void REQUIRE(bool expr, const std::source_location location = std::source_location::current());
+    void INFO(QString message);
+    void FAIL(QString message, const std::source_location location = std::source_location::current());
     virtual qsizetype tagCount() const = 0;
     virtual QStringView tagAt(qsizetype idx) const = 0;
     virtual void scenarioFunction() = 0;
 
 private:
-    inline ScenarioRunner * scenarioRunner() {return m_pScenarioRunner;}
+    ScenarioRunner * scenarioRunner();
     void processFailedRequire(const std::source_location location);
 
 private:
