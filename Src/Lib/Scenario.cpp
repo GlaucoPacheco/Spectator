@@ -5,6 +5,7 @@
 #include "ScenarioRepository.h"
 #include "ScenarioRunner.h"
 #include "SpectatorException.h"
+#include <QCoreApplication>
 
 using namespace Qt::StringLiterals;
 
@@ -35,6 +36,33 @@ void Scenario::INFO(QString message)
 void Scenario::FAIL(QString message, const std::source_location location)
 {
     throw SpectatorException(message, QString::fromUtf8(location.file_name()), location.line());
+}
+
+static void processEvents(int timeInMSecs = -1)
+{
+    QCoreApplication::sendPostedEvents();
+    QCoreApplication::sendPostedEvents(nullptr, QEvent::DeferredDelete);
+    if (timeInMSecs > 0)
+        QCoreApplication::processEvents(QEventLoop::AllEvents | QEventLoop::WaitForMoreEvents, timeInMSecs);
+    else
+        QCoreApplication::processEvents();
+}
+
+bool Scenario::TRY_ACQUIRE(QSemaphore &semaphore, int resourceCount, QDeadlineTimer deadlineTimer)
+{
+    if (deadlineTimer.remainingTime() < 0)
+        qFatal("Failed to wait for semaphore. Deadline timer must have a non-negative remaining time.");
+    if (resourceCount <= 0)
+        qFatal("Failed to wait for semaphore. resourceCount must be a positive integer.");
+    do
+    {
+        processEvents();
+        if (semaphore.tryAcquire(resourceCount))
+            return true;
+        else
+            processEvents(1);
+    } while (!deadlineTimer.hasExpired());
+    return semaphore.tryAcquire(resourceCount);
 }
 
 ScenarioRunner * Scenario::scenarioRunner()

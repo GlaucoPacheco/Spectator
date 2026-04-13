@@ -42,9 +42,10 @@ endif()
 qt_add_executable(SpectatorTutorialApp)
 target_sources(SpectatorTutorialApp PRIVATE main.cpp)
 find_package(Spectator)
-find_package(Qt6 COMPONENTS Core Concurrent REQUIRED)
+find_package(Qt6 COMPONENTS Core Concurrent Network REQUIRED)
 target_link_libraries(TutorialApp
     PRIVATE
     Spectator::Spectator
     Qt::Core
-    Qt::Concurrent)
+    Qt::Concurrent
+    Qt::Network)

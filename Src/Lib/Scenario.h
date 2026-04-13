@@ -7,6 +7,8 @@
 #include "SpectatorGlobals.h"
 #include "MacroHelpers.h"
 #include "Section.h"
+#include <QSemaphore>
+#include <QDeadlineTimer>
 #include <QStringView>
 #include <QString>
 #include <QtTypes>
@@ -28,6 +30,7 @@ public:
     void REQUIRE(bool expr, const std::source_location location = std::source_location::current());
     void INFO(QString message);
     void FAIL(QString message, const std::source_location location = std::source_location::current());
+    static bool TRY_ACQUIRE(QSemaphore &semaphore, int resourceCount, QDeadlineTimer deadlineTimer);
     virtual qsizetype tagCount() const = 0;
     virtual QStringView tagAt(qsizetype idx) const = 0;
     virtual void scenarioFunction() = 0;
@@ -62,6 +65,10 @@ class SpectatorScenarioFinal : public SpectatorScenarioImpl<ptr> {};
         inline void REQUIRE(bool expr, const std::source_location location = std::source_location::current()) {::Spectator::Scenario::REQUIRE(expr, location);} \
         inline void INFO(QString message) {::Spectator::Scenario::INFO(message);} \
         inline void FAIL(QString message, const std::source_location location = std::source_location::current()) {::Spectator::Scenario::FAIL(message, location);} \
+        inline bool TRY_ACQUIRE(QSemaphore &semaphore, int resourceCount, QDeadlineTimer deadlineTimer) {::Spectator::TRY_ACQUIRE(semaphore, resourceCount, deadlineTimer);} \
+        inline bool TRY_ACQUIRE(QSemaphore &semaphore, QDeadlineTimer deadlineTimer) {::Spectator::TRY_ACQUIRE(semaphore, deadlineTimer);} \
+        inline bool TRY_ACQUIRE(QSemaphore &semaphore, int timeoutInSecs) {::Spectator::TRY_ACQUIRE(semaphore, timeoutInSecs);} \
+        inline bool TRY_ACQUIRE(QSemaphore &semaphore, int resourceCount, int timeoutInSecs) {::Spectator::TRY_ACQUIRE(semaphore, resourceCount, timeoutInSecs);} \
     protected: \
         virtual void _scenarioFunction() = 0; \
     private: \

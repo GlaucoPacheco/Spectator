@@ -42,18 +42,21 @@ namespace Spectator
     SPECTATOR_EXPORT void REQUIRE(bool expr, const std::source_location location = std::source_location::current());
     SPECTATOR_EXPORT void INFO(QString message);
     SPECTATOR_EXPORT void FAIL(QString message, const std::source_location location = std::source_location::current());
-    SPECTATOR_EXPORT bool tryAcquire(QSemaphore &semaphore, int resourceCount, QDeadlineTimer deadlineTimer);
-    inline static bool tryAcquire(QSemaphore &semaphore, QDeadlineTimer deadlineTimer)
+    inline bool TRY_ACQUIRE(QSemaphore &semaphore, int resourceCount, QDeadlineTimer deadlineTimer)
     {
-        return tryAcquire(semaphore, 1, deadlineTimer);
+        return Scenario::TRY_ACQUIRE(semaphore, resourceCount, deadlineTimer);
     }
-    inline static bool tryAcquire(QSemaphore &semaphore, int timeoutInSecs)
+    inline static bool TRY_ACQUIRE(QSemaphore &semaphore, QDeadlineTimer deadlineTimer)
     {
-        return tryAcquire(semaphore, QDeadlineTimer(1000*timeoutInSecs));
+        return TRY_ACQUIRE(semaphore, 1, deadlineTimer);
     }
-    inline static bool tryAcquire(QSemaphore &semaphore, int resourceCount, int timeoutInSecs)
+    inline static bool TRY_ACQUIRE(QSemaphore &semaphore, int timeoutInSecs)
     {
-        return tryAcquire(semaphore, resourceCount, QDeadlineTimer(1000*timeoutInSecs));
+        return TRY_ACQUIRE(semaphore, QDeadlineTimer(1000*timeoutInSecs));
+    }
+    inline static bool TRY_ACQUIRE(QSemaphore &semaphore, int resourceCount, int timeoutInSecs)
+    {
+        return TRY_ACQUIRE(semaphore, resourceCount, QDeadlineTimer(1000*timeoutInSecs));
     }
 }
 
