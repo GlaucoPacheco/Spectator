@@ -67,7 +67,7 @@ SCENARIO("QTcpSocket sends data to connected peer before disconnecting")
 }
 ```
 
-You can build and run the test above following the tutorial.
+You can build and run the test above following the [tutorial](Src/Tutorial/README.md).
 
 ## Command-line arguments
 
