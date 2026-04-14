@@ -41,11 +41,18 @@ target_link_libraries(SpectatorObjs
     Qt::Concurrent)
 qt_add_library(Spectator SHARED $<TARGET_OBJECTS:SpectatorObjs>)
 target_compile_definitions(Spectator PRIVATE SPECTATOR_LIBRARY)
+target_include_directories(Spectator INTERFACE
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+    $<INSTALL_INTERFACE:include>)
+add_library(Kourier::Spectator ALIAS Spectator)
 set_target_properties(Spectator PROPERTIES
     C_VISIBILITY_PRESET hidden
     CXX_VISIBILITY_PRESET hidden)
 target_link_libraries(Spectator
     PRIVATE
+    Qt::Core
+    Qt::Concurrent
+    INTERFACE
     Qt::Core
     Qt::Concurrent)
 include(GNUInstallDirs)
@@ -89,7 +96,7 @@ include(GNUInstallDirs)
         ${CMAKE_INSTALL_INCLUDEDIR})
     install(EXPORT Spectator
         FILE SpectatorConfig.cmake
-        NAMESPACE Spectator::
+        NAMESPACE Kourier::
         DESTINATION
         ${CMAKE_INSTALL_LIBDIR}/cmake)
     include(CMakePackageConfigHelpers)
@@ -109,7 +116,7 @@ include(GNUInstallDirs)
         COMPATIBILITY AnyNewerVersion)
     export(EXPORT Spectator
         FILE "${CMAKE_CURRENT_BINARY_DIR}/cmake/SpectatorConfig.cmake"
-        NAMESPACE Spectator::)
+        NAMESPACE Kourier::)
     install(FILES
         "${CMAKE_CURRENT_BINARY_DIR}/SpectatorConfig.cmake"
         "${CMAKE_CURRENT_BINARY_DIR}/SpectatorConfigVersion.cmake"

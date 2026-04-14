@@ -41,7 +41,12 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GN
 endif()
 qt_add_executable(SpectatorTutorialApp)
 target_sources(SpectatorTutorialApp PRIVATE main.cpp)
+if (Spectator_DIR)
 find_package(Spectator)
+else ()
+include(FetchContent)
+
+endif ()
 find_package(Qt6 COMPONENTS Core Concurrent Network REQUIRED)
 target_link_libraries(TutorialApp
     PRIVATE
