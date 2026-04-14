@@ -31,6 +31,18 @@ public:
     void INFO(QString message);
     void FAIL(QString message, const std::source_location location = std::source_location::current());
     static bool TRY_ACQUIRE(QSemaphore &semaphore, int resourceCount, QDeadlineTimer deadlineTimer);
+    inline static bool TRY_ACQUIRE(QSemaphore &semaphore, QDeadlineTimer deadlineTimer)
+    {
+        return TRY_ACQUIRE(semaphore, 1, deadlineTimer);
+    }
+    inline static bool TRY_ACQUIRE(QSemaphore &semaphore, int timeoutInSecs)
+    {
+        return TRY_ACQUIRE(semaphore, QDeadlineTimer(1000*timeoutInSecs));
+    }
+    inline static bool TRY_ACQUIRE(QSemaphore &semaphore, int resourceCount, int timeoutInSecs)
+    {
+        return TRY_ACQUIRE(semaphore, resourceCount, QDeadlineTimer(1000*timeoutInSecs));
+    }
     virtual qsizetype tagCount() const = 0;
     virtual QStringView tagAt(qsizetype idx) const = 0;
     virtual void scenarioFunction() = 0;
@@ -65,10 +77,10 @@ class SpectatorScenarioFinal : public SpectatorScenarioImpl<ptr> {};
         inline void REQUIRE(bool expr, const std::source_location location = std::source_location::current()) {::Spectator::Scenario::REQUIRE(expr, location);} \
         inline void INFO(QString message) {::Spectator::Scenario::INFO(message);} \
         inline void FAIL(QString message, const std::source_location location = std::source_location::current()) {::Spectator::Scenario::FAIL(message, location);} \
-        inline bool TRY_ACQUIRE(QSemaphore &semaphore, int resourceCount, QDeadlineTimer deadlineTimer) {::Spectator::TRY_ACQUIRE(semaphore, resourceCount, deadlineTimer);} \
-        inline bool TRY_ACQUIRE(QSemaphore &semaphore, QDeadlineTimer deadlineTimer) {::Spectator::TRY_ACQUIRE(semaphore, deadlineTimer);} \
-        inline bool TRY_ACQUIRE(QSemaphore &semaphore, int timeoutInSecs) {::Spectator::TRY_ACQUIRE(semaphore, timeoutInSecs);} \
-        inline bool TRY_ACQUIRE(QSemaphore &semaphore, int resourceCount, int timeoutInSecs) {::Spectator::TRY_ACQUIRE(semaphore, resourceCount, timeoutInSecs);} \
+        inline bool TRY_ACQUIRE(QSemaphore &semaphore, int resourceCount, QDeadlineTimer deadlineTimer) {return ::Spectator::Scenario::TRY_ACQUIRE(semaphore, resourceCount, deadlineTimer);} \
+        inline bool TRY_ACQUIRE(QSemaphore &semaphore, QDeadlineTimer deadlineTimer) {return ::Spectator::Scenario::TRY_ACQUIRE(semaphore, deadlineTimer);} \
+        inline bool TRY_ACQUIRE(QSemaphore &semaphore, int timeoutInSecs) {return ::Spectator::Scenario::TRY_ACQUIRE(semaphore, timeoutInSecs);} \
+        inline bool TRY_ACQUIRE(QSemaphore &semaphore, int resourceCount, int timeoutInSecs) {return ::Spectator::Scenario::TRY_ACQUIRE(semaphore, resourceCount, timeoutInSecs);} \
     protected: \
         virtual void _scenarioFunction() = 0; \
     private: \
