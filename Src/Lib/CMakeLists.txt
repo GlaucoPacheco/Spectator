@@ -78,8 +78,8 @@ include(GNUInstallDirs)
 "// Copyright (C) 2026 Glauco Pacheco <glaucopacheco@gmail.com>
 // SPDX-License-Identifier: AGPL-3.0-only OR MPL-2.0-no-copyleft-exception
 
-#ifndef SPECTATOR_H
-#define SPECTATOR_H
+#ifndef SPECTATOR_MAIN_HEADER_H
+#define SPECTATOR_MAIN_HEADER_H
 
 #include \"Private/MacroHelpers.h\"
 #include \"Private/Generator.h\"
@@ -87,8 +87,10 @@ include(GNUInstallDirs)
 #include \"Private/ScenariosRunner.h\"
 #include \"Private/Section.h\"
 #include \"Private/SectionGuard.h\"
+#include \"Private/Spectator.h\"
 
-#endif // SPECTATOR_H"
+#endif // SPECTATOR_MAIN_HEADER_H
+"
 )
     install(FILES
         ${CMAKE_BINARY_DIR}/Spectator

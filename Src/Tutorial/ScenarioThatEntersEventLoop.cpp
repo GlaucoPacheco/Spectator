@@ -19,7 +19,7 @@ SCENARIO("QTcpSocket sends data to connected peer before disconnecting")
         REQUIRE(server.listen(QHostAddress::LocalHost));
         std::unique_ptr<QTcpSocket> pServerPeer;
         QSemaphore serverPeerConnectedSemaphore;
-        QObject::connect(&server, QTcpServer::newConnection, [&]()
+        QObject::connect(&server, &QTcpServer::newConnection, [&]()
         {
             REQUIRE(pServerPeer.get() == nullptr);
             pServerPeer.reset(server.nextPendingConnection());
@@ -33,7 +33,7 @@ SCENARIO("QTcpSocket sends data to connected peer before disconnecting")
         QObject::connect(&clientPeer, &QTcpSocket::connected, [&]()
         {
             clientPeerConnectedSemaphore.release(1);
-        })
+        });
         clientPeer.connectToHost(server.serverAddress(), server.serverPort());
         REQUIRE(TRY_ACQUIRE(clientPeerConnectedSemaphore, QDeadlineTimer(5000)));
         REQUIRE(TRY_ACQUIRE(serverPeerConnectedSemaphore, QDeadlineTimer(5000)));

@@ -15,7 +15,7 @@ SCENARIO("Scenario with generator")
     {
         // this given will be repeated three times with givenData={1,2,3}
         const auto givenData = GENERATE_RANGE(AS(int), 1, 3);
-        REQUIRE(givenData == 1 || givenData == 2 || givenData == 3)
+        REQUIRE(givenData == 1 || givenData == 2 || givenData == 3);
 
         WHEN("when with generate range with step")
         {
