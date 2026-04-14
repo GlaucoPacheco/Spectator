@@ -4,11 +4,11 @@
 #ifndef SPECTATOR_H
 #define SPECTATOR_H
 
-#include "Private/MacroHelpers.h"
-#include "Private/Generator.h"
-#include "Private/Scenario.h"
-#include "Private/ScenariosRunner.h"
-#include "Private/Section.h"
-#include "Private/SectionGuard.h"
+#include "MacroHelpers.h"
+#include "Generator.h"
+#include "Scenario.h"
+#include "ScenariosRunner.h"
+#include "Section.h"
+#include "SectionGuard.h"
 
 #endif // SPECTATOR_H
