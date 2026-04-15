@@ -4,6 +4,13 @@
 #include "Settings.h"
 #include <QCommandLineParser>
 #include <QThread>
+#include <QDebug>
+#include <QString>
+#include <QTextStream>
+#include <cstdio>
+#include <cstdlib>
+
+using namespace Qt::StringLiterals;
 
 namespace Spectator
 {
@@ -11,20 +18,32 @@ namespace Spectator
 Settings Settings::fromCmdLine()
 {
     QCommandLineParser parser;
-    parser.addOptions({{"j", "Sets the number of threads to use for running the tests.", "<thread count>", "1"},
-                       {"r", "Sets how many times the tests should be repeated.", "<repetition count>", "0"},
-                       {"f", "Sets the source file for filtering scenarios. Only scenarios belonging to the given source file are run.", "<scenario filename>", ""},
-                       {"s", "Sets the scenario name for filtering scenarios. Only scenarios matching the given name are run.", "<scenario name>", ""},
-                       {"t", "Adds the scenario tag for filtering scenarios. Only scenarios tagged with the given tag are run.", "<scenario tag>", ""}});
+    if (!parser.addOptions({
+        {{u"h"_s, u"help"_s}, u"Shows this message."_s},
+        {{u"v"_s, u"version"_s}, u"Shows version."_s},
+        {u"j"_s, u"Sets the number of threads to use for running the tests."_s, u"<thread count>"_s, u"1"_s},
+        {u"r"_s, u"Sets how many times the tests should be repeated."_s, u"<repetition count>"_s, u"0"_s},
+        {u"f"_s, u"Sets the source file for filtering scenarios. Only scenarios belonging to the given source file are run."_s, u"<scenario filename>"_s, u""_s},
+        {u"s"_s, u"Sets the scenario name for filtering scenarios. Only scenarios matching the given name are run."_s, u"<scenario name>"_s, u""_s},
+        {u"t"_s, u"Adds the scenario tag for filtering scenarios. Only scenarios tagged with the given tag are run."_s, u"<scenario tag>"_s, u""_s}}))
+        {
+            qFatal() << u"Failed to fetch options from commmand line. "
+                         "Failed to create QCommandLineParser. "
+                         "Invalid command line options given to command line parser."_s;
+        }
     if (QCoreApplication::instance() == nullptr) [[unlikely]]
-        qFatal("Failed to fetch settings from command line. Current QCoreApplication instance is null. Please, create a QCoreInstance before trying to run the scenarios.");
+        qFatal() << u"Failed to fetch settings from command line. "
+                     "Current QCoreApplication instance is null. "
+                     "Please, create a QCoreInstance before trying to run the scenarios."_s;
     else if (!parser.parse(QCoreApplication::arguments())) [[unlikely]]
     {
-        qFatal("%s%s%s", "Failed to fetch settings from command line. "
-                         "Failed to parse command line arguments",
-                         qUtf8Printable(QCoreApplication::arguments().join(' ')), ".");
+        qFatal() << u"Failed to fetch settings from command line. "
+                     "Failed to parse command line arguments %1."_s
+                     .arg(QCoreApplication::arguments().join(' '));
     }
     Settings settings;
+    if (parser.isSet("h") || parser.isSet("help"))
+        showHelpAndExit();
     if (parser.isSet("j"))
     {
         const auto values = parser.values("j");
@@ -76,6 +95,32 @@ Settings Settings::fromCmdLine()
     if (parser.isSet("t"))
         settings.m_scenarioTagsFilter = parser.values("t");
     return settings;
+}
+
+void Settings::showHelpAndExit()
+{
+    static const QString helpText = u"(Usage: test-app [INFORMATION OPTION]\n"
+"or:  test-app [TEST OPTIONS]\n\n"
+"Options are of two types: information or test. "
+"Information options must not be combined with other information or test options. Test options can be combined freely.\n\n"
+"Information options:\n"
+"  -h, --help               Show this message and exit.\n"
+"  -v, --version            Show version and exit.\n\n"
+"Test options:\n"
+"  -j <thread count>        Use <thread count> threads to run tests.\n"
+"  -u <N>                   Repeat tests <N> more times.\n"
+"  -f <file>                Filter scenarios by <file>. Only scenarios belonging to <file> are run.\n"
+"  -s <name>                Filter scenarios by <name>. Only the scenario with <name> is run.\n"
+"  -t <tag>                 Filter scenarios by <tag>. Only scenarios tagged with <tag> are run.\n"_s;
+    QTextStream textStream(stdout);
+    textStream << helpText;
+    textStream.flush();
+    std::exit(0);
+}
+
+void Settings::showVersionAndExit()
+{
+
 }
 
 }

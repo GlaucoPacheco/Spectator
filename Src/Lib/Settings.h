@@ -24,6 +24,10 @@ public:
     static Settings fromCmdLine();
 
 private:
+    static void showHelpAndExit();
+    static void showVersionAndExit();
+
+private:
     qint32 m_threadCount = 1;
     qint64 m_repetitionCount = 0;
     QString m_filePathFilter;
