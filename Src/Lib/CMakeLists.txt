@@ -33,21 +33,19 @@ qt_add_library(SpectatorObjs OBJECT
     Spectator.h
     SpectatorException.h
     SpectatorGlobals.h)
-
+target_compile_definitions(SpectatorObjs PUBLIC
+    SPECTATOR_LIBRARY
+    VERSION_STRING=${VERSION_STRING})
 find_package(Qt6 COMPONENTS Core Concurrent REQUIRED)
 target_link_libraries(SpectatorObjs
     PRIVATE
     Qt::Core
     Qt::Concurrent)
 qt_add_library(Spectator SHARED $<TARGET_OBJECTS:SpectatorObjs>)
-target_compile_definitions(Spectator PRIVATE SPECTATOR_LIBRARY)
 target_include_directories(Spectator INTERFACE
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
     $<INSTALL_INTERFACE:include>)
 add_library(Kourier::Spectator ALIAS Spectator)
-set_target_properties(Spectator PROPERTIES
-    C_VISIBILITY_PRESET hidden
-    CXX_VISIBILITY_PRESET hidden)
 target_link_libraries(Spectator
     PRIVATE
     Qt::Core

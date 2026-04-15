@@ -26,6 +26,8 @@ find_package(Qt6 REQUIRED COMPONENTS Core)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
+set(CMAKE_C_VISIBILITY_PRESET hidden)
+set(CMAKE_CXX_VISIBILITY_PRESET hidden)
 # Set compiler options
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
 set(CMAKE_CXX_FLAGS_DEBUG "-g")
@@ -40,6 +42,42 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GN
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ftls-model=initial-exec -march=x86-64-v3 -mavx2")
         add_link_options(-ftls-model=initial-exec)
     endif()
+endif()
+find_package(Git REQUIRED)
+if(Git_FOUND)
+  execute_process(
+    COMMAND ${GIT_EXECUTABLE} --no-pager log -n 1 HEAD --pretty=format:'%h'
+    WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+    OUTPUT_VARIABLE GIT_HASH
+    RESULT_VARIABLE result
+    ERROR_QUIET
+    OUTPUT_STRIP_TRAILING_WHITESPACE)
+  if(NOT result EQUAL 0)
+    message(FATAL_ERROR "Failed to fetch Git short hash.")
+  endif()
+  execute_process(
+    COMMAND ${GIT_EXECUTABLE} rev-parse --abbrev-ref HEAD
+    WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+    OUTPUT_VARIABLE GIT_BRANCH
+    RESULT_VARIABLE result
+    ERROR_QUIET
+    OUTPUT_STRIP_TRAILING_WHITESPACE)
+  if(NOT result EQUAL 0)
+    message(FATAL_ERROR "Failed to fetch Git branch name.")
+  endif()
+  execute_process(
+    COMMAND ${GIT_EXECUTABLE} --no-pager log -n 1 HEAD --date=short --pretty=format:'%cd'
+    WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+    OUTPUT_VARIABLE GIT_DATE
+    RESULT_VARIABLE result
+    ERROR_QUIET
+    OUTPUT_STRIP_TRAILING_WHITESPACE)
+  if(NOT result EQUAL 0)
+    message(FATAL_ERROR "Failed to fetch Git commit date.")
+  endif()
+  set(VERSION_STRING_RAW "${GIT_HASH}:${GIT_BRANCH}:${GIT_DATE}")
+  string(REPLACE "'" "" VERSION_STRING "${VERSION_STRING_RAW}")
+  message(STATUS "Version: ${VERSION_STRING}")
 endif()
 
 add_subdirectory(Src)

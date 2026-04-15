@@ -44,6 +44,8 @@ Settings Settings::fromCmdLine()
     Settings settings;
     if (parser.isSet("h") || parser.isSet("help"))
         showHelpAndExit();
+    if (parser.isSet("v") || parser.isSet("version"))
+        showVersionAndExit();
     if (parser.isSet("j"))
     {
         const auto values = parser.values("j");
@@ -118,9 +120,15 @@ void Settings::showHelpAndExit()
     std::exit(0);
 }
 
+#define XSTR(x) STR(x)
+#define STR(x) #x
+
 void Settings::showVersionAndExit()
 {
-
+    QTextStream textStream(stdout);
+    textStream << XSTR(VERSION_STRING) << Qt::endl;
+    textStream.flush();
+    std::exit(0);
 }
 
 }
