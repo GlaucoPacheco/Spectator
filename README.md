@@ -48,7 +48,7 @@ SCENARIO("QTcpSocket sends data to connected peer before disconnecting")
 
         WHEN("client peer sends data to server peer before disconnecting")
         {
-            const auto sentData = GENERATE(AS(QByteArray), "Hello Peer!", "The test will be ran again with this text as sent data.");
+            const auto sentData = GENERATE(AS(QByteArray), "Hello Peer!", "The test will be run again with this text as sent data.");
             clientPeer.write(sentData);
             clientPeer.disconnectFromHost();
 
