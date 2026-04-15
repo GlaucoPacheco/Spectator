@@ -15,7 +15,7 @@ SCENARIO("A scenario with 100M requires")
     {
         WHEN("a empty when")
         {
-            THEN("we run require for 10M times")
+            THEN("we run require for 50M times")
             {
                 // Let's do another 50M requires inside a section.
                 for (auto i = 0; i < 50000000; ++i)
