@@ -42,8 +42,8 @@ target_link_libraries(SpectatorObjs
     Qt::Core
     Qt::Concurrent)
 qt_add_library(Spectator SHARED $<TARGET_OBJECTS:SpectatorObjs>)
-target_include_directories(Spectator INTERFACE
-    $<INSTALL_INTERFACE:include>)
+# target_include_directories(Spectator INTERFACE
+#     $<INSTALL_INTERFACE:include>)
 add_library(Kourier::Spectator ALIAS Spectator)
 target_link_libraries(Spectator
     PRIVATE
@@ -53,7 +53,7 @@ target_link_libraries(Spectator
     Qt::Core
     Qt::Concurrent)
 include(GNUInstallDirs)
-    target_include_directories(Spectator PUBLIC "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>")
+    # target_include_directories(Spectator PUBLIC "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>")
     install(TARGETS Spectator
         EXPORT Spectator
         LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
@@ -71,28 +71,12 @@ include(GNUInstallDirs)
         Spectator.h
         DESTINATION
         ${CMAKE_INSTALL_INCLUDEDIR}/Private)
-    file(GENERATE OUTPUT ${CMAKE_BINARY_DIR}/Spectator CONTENT
-"// Copyright (C) 2026 Glauco Pacheco <glaucopacheco@gmail.com>
-// SPDX-License-Identifier: AGPL-3.0-only OR MPL-2.0-no-copyleft-exception
-
-#ifndef SPECTATOR_MAIN_HEADER_H
-#define SPECTATOR_MAIN_HEADER_H
-
-#include \"Private/MacroHelpers.h\"
-#include \"Private/Generator.h\"
-#include \"Private/Scenario.h\"
-#include \"Private/ScenariosRunner.h\"
-#include \"Private/Section.h\"
-#include \"Private/SectionGuard.h\"
-#include \"Private/Spectator.h\"
-
-#endif // SPECTATOR_MAIN_HEADER_H
-"
-)
     install(FILES
-        ${CMAKE_BINARY_DIR}/Spectator
+        ${CMAKE_CURRENT_LIST_DIR}/Spectator_install
         DESTINATION
-        ${CMAKE_INSTALL_INCLUDEDIR})
+        ${CMAKE_INSTALL_INCLUDEDIR}
+        RENAME
+        Spectator)
     install(EXPORT Spectator
         FILE SpectatorConfig.cmake
         NAMESPACE Kourier::
