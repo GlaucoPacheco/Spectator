@@ -35,7 +35,7 @@ qt_add_library(SpectatorObjs OBJECT
     SpectatorGlobals.h)
 target_compile_definitions(SpectatorObjs PUBLIC
     SPECTATOR_LIBRARY
-    VERSION_STRING=${VERSION_STRING})
+    CONFIGURATION_VERSION_STRING=${CONFIGURATION_VERSION_STRING})
 find_package(Qt6 COMPONENTS Core Concurrent REQUIRED)
 target_link_libraries(SpectatorObjs
     PRIVATE

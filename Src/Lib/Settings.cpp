@@ -126,7 +126,7 @@ void Settings::showHelpAndExit()
 void Settings::showVersionAndExit()
 {
     QTextStream textStream(stdout);
-    textStream << XSTR(VERSION_STRING) << Qt::endl;
+    textStream << XSTR(CONFIGURATION_VERSION_STRING) << Qt::endl;
     textStream.flush();
     std::exit(0);
 }
