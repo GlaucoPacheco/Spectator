@@ -46,36 +46,15 @@ endif()
 find_package(Git REQUIRED)
 if(Git_FOUND)
   execute_process(
-    COMMAND ${GIT_EXECUTABLE} --no-pager log -n 1 HEAD --pretty=format:'%h'
+    COMMAND ${GIT_EXECUTABLE} --no-pager log -n 1 HEAD --pretty=format:'%h-%ct'
     WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
-    OUTPUT_VARIABLE GIT_HASH
+    OUTPUT_VARIABLE CONFIGURATION_VERSION_STRING_RAW
     RESULT_VARIABLE result
     ERROR_QUIET
     OUTPUT_STRIP_TRAILING_WHITESPACE)
   if(NOT result EQUAL 0)
-    message(FATAL_ERROR "Failed to fetch Git short hash.")
+    message(FATAL_ERROR "Failed to fetch Git short hash and UNIX timestamp.")
   endif()
-  execute_process(
-    COMMAND ${GIT_EXECUTABLE} rev-parse --abbrev-ref HEAD
-    WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
-    OUTPUT_VARIABLE GIT_BRANCH
-    RESULT_VARIABLE result
-    ERROR_QUIET
-    OUTPUT_STRIP_TRAILING_WHITESPACE)
-  if(NOT result EQUAL 0)
-    message(FATAL_ERROR "Failed to fetch Git branch name.")
-  endif()
-  execute_process(
-    COMMAND ${GIT_EXECUTABLE} --no-pager log -n 1 HEAD --date=short --pretty=format:'%cd'
-    WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
-    OUTPUT_VARIABLE GIT_DATE
-    RESULT_VARIABLE result
-    ERROR_QUIET
-    OUTPUT_STRIP_TRAILING_WHITESPACE)
-  if(NOT result EQUAL 0)
-    message(FATAL_ERROR "Failed to fetch Git commit date.")
-  endif()
-  set(CONFIGURATION_VERSION_STRING_RAW "${GIT_HASH}:${GIT_BRANCH}:${GIT_DATE}")
   string(REPLACE "'" "" CONFIGURATION_VERSION_STRING "${CONFIGURATION_VERSION_STRING_RAW}")
   message(STATUS "Configuration version: ${CONFIGURATION_VERSION_STRING}")
 endif()
