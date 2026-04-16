@@ -43,7 +43,6 @@ qt_add_executable(SpectatorTutorialApp)
 target_sources(SpectatorTutorialApp PRIVATE
     main.cpp
     ScenarioThatEntersEventLoop.cpp
-    ScenarioWith100MRequires.cpp
     ScenarioWithGenerator.cpp)
 if (DEFINED Spectator_DIR OR DEFINED ENV{Spectator_DIR})
 find_package(Spectator)
