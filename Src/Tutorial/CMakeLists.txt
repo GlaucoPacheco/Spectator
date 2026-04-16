@@ -45,10 +45,14 @@ target_sources(SpectatorTutorialApp PRIVATE
     ScenarioThatEntersEventLoop.cpp
     ScenarioWithGenerator.cpp)
 if (DEFINED Spectator_DIR OR DEFINED ENV{Spectator_DIR})
-find_package(Spectator)
+  find_package(Spectator)
 else ()
-include(FetchContent)
-
+  include(FetchContent)
+  FetchContent_Declare(
+    Spectator
+    GIT_REPOSITORY https://github.com/GlaucoPacheco/Spectator.git
+    GIT_TAG        d95bc36e3af4666dd1e02c05a3f257c0e3a62de2)
+  FetchContent_MakeAvailable(Spectator)
 endif ()
 find_package(Qt6 COMPONENTS Core Concurrent Network REQUIRED)
 target_link_libraries(SpectatorTutorialApp

@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only OR MPL-2.0-no-copyleft-exception
 
 #include <Spectator.h>
-#include "Generator.h"
+#include <Generator.h>
 #include "../SectionEntryRecorder.h"
 #include "../GeneratorDataRecorder.h"
 #include <QString>
