@@ -42,6 +42,9 @@ target_link_libraries(SpectatorObjs
     Qt::Core
     Qt::Concurrent)
 qt_add_library(Spectator SHARED $<TARGET_OBJECTS:SpectatorObjs>)
+target_include_directories(Spectator PUBLIC
+    "$<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>"
+    "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>")
 # target_include_directories(Spectator INTERFACE
 #     $<INSTALL_INTERFACE:include>)
 add_library(Kourier::Spectator ALIAS Spectator)
