@@ -51,7 +51,7 @@ else ()
   FetchContent_Declare(
     Spectator
     GIT_REPOSITORY https://github.com/GlaucoPacheco/Spectator.git
-    GIT_TAG        645bd4360c66e87ff5785371170cbdb9908371ed)
+    GIT_TAG        a2a8048847c23abf998f3b93db9605d0d432a075)
   FetchContent_MakeAvailable(Spectator)
 endif ()
 find_package(Qt6 COMPONENTS Core Concurrent Network REQUIRED)
